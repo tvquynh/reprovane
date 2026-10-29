@@ -35,7 +35,7 @@ def check_names(names):
 def identity(text):
     metadata = Parser().parsestr(text)
     assert metadata['Name'] == 'scholarflow'
-    assert metadata['Version'] == '1.0.0rc1'
+    assert metadata['Version'] == '1.0.0'
 
 
 def main():
@@ -73,7 +73,7 @@ def main():
                 env.pop(key, None)
             code = (
                 'import importlib.metadata as m,json,pathlib,sys,scholarflow; '
-                "assert m.version('scholarflow')=='1.0.0rc1'; "
+                "assert m.version('scholarflow')=='1.0.0'; "
                 'assert pathlib.Path(sys.prefix) in pathlib.Path(scholarflow.__file__).parents; '
                 "print(json.dumps({'name':m.metadata('scholarflow')['Name'],'version':m.version('scholarflow'),'noneditable':True,'outside_checkout':True}))"
             )

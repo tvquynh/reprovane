@@ -1,8 +1,8 @@
 # Migrate to ScholarFlow
 
-Predecessor legacy v4.1.0 -> ScholarFlow 1.0.0 (candidate 1.0.0rc1).
+Predecessor legacy v4.1.0 -> ScholarFlow 1.0.0.
 
-Legacy baseline: f70796d1ef6003e24ce3afa1328088cc515dc0a0. Candidate product version is reported by `scholarflow --version` (1.0.0rc1 for this candidate).
+Legacy baseline: f70796d1ef6003e24ce3afa1328088cc515dc0a0. Product version is reported by `scholarflow --version` (1.0.0).
 
 V4 wrote flattened OpenAlex `_raw.jsonl` and `_raw.csv`, enriched CSV/JSONL, main/excluded/source-audit/preprint CSVs, checkpoint/summary/run-metadata JSON and fetch-oa state/log/manual/downloaded outputs and PDFs. Its raw filename does not mean exact original API bytes. A legacy main or excluded group is a historical machine filtering result, never a modern human screening decision. No legacy classification becomes ScreeningDecision, ScreeningOutcome, CorpusReleaseItem or a primary FullTextArtifact.
 
