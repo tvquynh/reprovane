@@ -1,0 +1,28 @@
+# Example venue list for --venue-tiers. It shows the format only: the tiers are an illustration,
+# not a ranking endorsed by this tool. Write your own list and record it in your review protocol.
+#
+# Columns are separated by TABs. Lines starting with # and blank lines are ignored.
+#   tier            any label you choose (A, B, core, ...); UNLISTED and AMBIGUOUS are reserved
+#   venue           the name shown in venue_tier_venue
+#   openalex_source_id, issn, title_exact, title_contains
+#                   ways to recognise the venue; give at least one, separate several values with ";"
+# Matching order: OpenAlex source ID, ISSN, whole source name (title_exact), then a phrase contained in
+# the OpenAlex source name (title_contains, whole words, longest phrase wins). Names ignore case,
+# punctuation and accents, and "&" counts as "and". Each ID, ISSN or phrase may appear in one row only.
+#
+# Conference papers published in book series (for example Lecture Notes in Computer Science) carry
+# the series as their OpenAlex source, so such a conference cannot be recognised by its own name.
+# The ISSNs below are taken from the SCImago 2025 snapshot.
+tier	venue	openalex_source_id	issn	title_exact	title_contains
+A	IEEE Symposium on Security and Privacy				ieee symposium on security and privacy
+A	USENIX Security Symposium				usenix security symposium
+A	ACM Conference on Computer and Communications Security				conference on computer and communications security
+A	Network and Distributed System Security Symposium				network and distributed system security symposium
+B	ACM Asia Conference on Computer and Communications Security				asia conference on computer and communications security
+B	IEEE European Symposium on Security and Privacy				ieee european symposium on security and privacy
+B	Annual Computer Security Applications Conference				annual computer security applications conference
+A	IEEE Transactions on Information Forensics and Security		1556-6013; 1556-6021
+A	IEEE Transactions on Dependable and Secure Computing		1545-5971; 1941-0018
+A	ACM Transactions on Privacy and Security		2471-2566; 2471-2574
+B	Computers & Security		0167-4048
+B	Journal of Information Security and Applications		2214-2126; 2214-2134

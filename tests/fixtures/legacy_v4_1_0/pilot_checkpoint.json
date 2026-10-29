@@ -1,0 +1,1 @@
+{"version": 2, "queries": {"synthetic security": {"signature": {"query": "synthetic security", "from_year": 2020, "to_year": 2026, "require_abstract": false}, "cursor": "SYNTHETIC_LEGACY_CURSOR", "retrieved": 3, "page": 1, "query_exhausted": false}}}

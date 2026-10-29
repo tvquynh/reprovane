@@ -1,0 +1,21 @@
+{
+  "level":"TITLE_ABSTRACT",
+  "allowed_decisions":["SCREEN_INCLUDE","SCREEN_EXCLUDE","SCREEN_UNSURE"],
+  "criteria":[
+    {"code":"G","label":"Synthetic guidance","description":"Explicit synthetic protocol guidance for engine tests only.","kind":"INCLUSION_GUIDANCE"},
+    {"code":"X","label":"Synthetic reason X","description":"Explicit synthetic exclusion reason, not a project criterion.","kind":"EXCLUSION_REASON"},
+    {"code":"Y","label":"Synthetic reason Y","description":"Another explicit synthetic exclusion reason.","kind":"EXCLUSION_REASON"}
+  ],
+  "required_reviewers":2,
+  "assignment_policy":"ALL_REVIEWERS",
+  "assignments":null,
+  "reviewers":[{"label":"reviewer_1","actor_type":"HUMAN"},{"label":"reviewer_2","actor_type":"HUMAN"}],
+  "adjudicators":[{"label":"adjudicator_1","actor_type":"HUMAN"}],
+  "consensus_policy":"UNANIMOUS",
+  "exclusion_reason_policy":{"multiple":false,"consensus":"UNION"},
+  "adjudication_policy":"EXPLICIT",
+  "allowed_evidence_fields":["title","abstract","publication_year","publication_date","doi","authors","venue","work_type","integrity","provider_identifiers"],
+  "note_policy":{"allow":true,"max_length":500},
+  "correction_policy":"EXPLICIT_SUPERSESSION",
+  "adjudication_correction_policy":"EXPLICIT_SUPERSESSION"
+}

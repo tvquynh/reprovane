@@ -1,0 +1,57 @@
+{
+  "id": "https://openalex.org/W1",
+  "doi": "https://doi.org/10.1234/test1",
+  "locations_count": 3,
+  "locations": [
+    {
+      "is_oa": true,
+      "pdf_url": "https://papers.example.org/a.pdf",
+      "landing_page_url": null,
+      "version": "publishedVersion",
+      "license": "cc-by",
+      "source": {
+        "type": "journal",
+        "display_name": "Synthetic host"
+      }
+    },
+    {
+      "is_oa": true,
+      "pdf_url": "https://papers.example.org/accepted.pdf",
+      "landing_page_url": null,
+      "version": "acceptedVersion",
+      "license": "cc-by",
+      "source": {
+        "type": "repository",
+        "display_name": "Synthetic host"
+      }
+    },
+    {
+      "is_oa": true,
+      "pdf_url": "https://papers.example.org/preprint.pdf",
+      "landing_page_url": null,
+      "version": "submittedVersion",
+      "license": "cc-by",
+      "source": {
+        "type": "repository",
+        "display_name": "Synthetic host"
+      }
+    }
+  ],
+  "best_oa_location": {
+    "is_oa": true,
+    "pdf_url": "https://papers.example.org/a.pdf",
+    "landing_page_url": null,
+    "version": "publishedVersion",
+    "license": "cc-by",
+    "source": {
+      "type": "journal",
+      "display_name": "Synthetic host"
+    }
+  },
+  "has_content": {
+    "pdf": true
+  },
+  "content_urls": {
+    "pdf": "https://content.openalex.org/works/W1.pdf"
+  }
+}

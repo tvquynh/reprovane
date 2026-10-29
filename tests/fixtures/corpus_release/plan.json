@@ -1,0 +1,16 @@
+{
+  "release_label":"corpus-v1",
+  "release_schema_version":"1",
+  "metadata_fields":["title","abstract","publication_year","publication_date","doi","authors","venue","work_type","integrity","provider_identifiers"],
+  "identifier_policy":"STAGE03_FROZEN_EXACT",
+  "authorship_policy":"PER_PROVIDER_ORDERED",
+  "venue_policy":"FROZEN_PROVIDER_DESCRIPTION",
+  "provenance_policy":"REFERENCES_WITH_ACTOR_LABELS",
+  "export_formats":["JSONL","CSV"],
+  "ordering_policy":"PUBLICATION_ENTITY_ID",
+  "identity_policy":"USE_STAGE03_FINAL_IDENTITY",
+  "screening_source_policy":"EXACT_SEALED_STAGE10",
+  "oa_policy":"FROZEN_RAW_WORK_LOCATIONS",
+  "search_validation_refs":[],
+  "export_directory_policy":"EXACT_FILES_ONLY"
+}

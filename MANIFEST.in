@@ -1,0 +1,11 @@
+include LICENSE README.md CHANGELOG.md SECURITY.md ARCHITECTURE.md MIGRATION_TO_SCHOLARFLOW.md OPERATIONS.md
+recursive-include scholarflow/core/migrations *.sql
+prune tests
+prune data
+prune cache
+prune dist
+prune build
+global-exclude *.pyc *.sqlite *.db .env config.json
+
+include PROVENANCE.md OLD_REPOSITORY_ARCHIVE_NOTICE.md
+prune docs/legacy

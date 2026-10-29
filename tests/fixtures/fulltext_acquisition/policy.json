@@ -1,0 +1,65 @@
+{
+  "schema": "fulltext-policy/1",
+  "allowed_versions": [
+    "publishedVersion",
+    "acceptedVersion"
+  ],
+  "allow_unknown_version": false,
+  "allowed_schemes": [
+    "http",
+    "https"
+  ],
+  "require_oa_evidence": true,
+  "provider_sources_enabled": [
+    "FROZEN",
+    "OPENALEX",
+    "UNPAYWALL",
+    "OPENALEX_CONTENT"
+  ],
+  "candidate_rank_policy": [
+    "version",
+    "host",
+    "direct",
+    "oa",
+    "provider",
+    "candidate_id"
+  ],
+  "version_rank": [
+    "publishedVersion",
+    "acceptedVersion",
+    "submittedVersion",
+    "UNKNOWN"
+  ],
+  "host_rank": [
+    "publisher",
+    "repository",
+    "openalex_content",
+    "unknown"
+  ],
+  "max_pdf_bytes": 25000000,
+  "min_pdf_bytes": 100,
+  "max_metadata_bytes": 5000000,
+  "request_timeout": 30,
+  "max_redirects": 4,
+  "retry_count": 2,
+  "retry_backoff": 1,
+  "max_retry_delay": 10,
+  "global_download_budget": {
+    "items": 100,
+    "http_requests": 200,
+    "bytes": 500000000,
+    "artifacts": 100,
+    "provider_lookups": 100
+  },
+  "per_item_candidate_limit": 4,
+  "manual_ingest_enabled": false,
+  "export_policy": "METADATA_ONLY_EXACT_FILES",
+  "allow_https_downgrade": false,
+  "content_type_policy": "VALID_PDF_OVERRIDES_MIME",
+  "pdf_validation": "PYPDF_STRICT_PAGES",
+  "signed_url_policy": "RUNTIME_ONLY_FAIL_CLOSED_ON_RESUME",
+  "conflict_policy": "REJECT_URL_VERSION_CONFLICT",
+  "primary_policy": "FIRST_SUCCESS_IN_FROZEN_RANK",
+  "lookup_policy": "SERIAL_ONCE_PER_RUN",
+  "privacy_policy": "SANITIZE_DERIVATIVE_RETAIN_ORIGINAL_SHA"
+}

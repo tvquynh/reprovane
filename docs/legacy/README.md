@@ -1,0 +1,1 @@
+Historical predecessor material, retained only for provenance. ScholarFlow documentation starts at the root README and PROVENANCE.md. The test-only command reference under tests/legacy_reference is never installed.

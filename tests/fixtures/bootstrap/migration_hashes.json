@@ -1,0 +1,15 @@
+{
+  "0001_persistence_foundation.sql": "6f5779b2073b4cdeb4bc8a70b8fbcf3f5892348eeedf74d35fa66430ba0e6b8e",
+  "0002_typed_observations.sql": "7356fa1ddf9881c53873626b43a8f54132451e1d86aff53b15c4ae556326dd26",
+  "0003_publication_authorship_observation.sql": "6c84d9e10203593caf4a47ee84e3e03bcc9e0454a101f6661abed8e58c722c4b",
+  "0004_publication_identity_resolution.sql": "7db707be3591ffc61c868d18356e27a68836f5d6ff723a495b3716ff08f430d7",
+  "0005_venue_resolution_scimago.sql": "825a88bb9ad602c643968691f702856d7f8bfb0938d195da9ecfee10c349c73e",
+  "0006_venue_provider_attributes.sql": "65ff69602176d1dd39cc09a8a30723fc3e77d132001533e823ba96700389d809",
+  "0007_openalex_acquisition.sql": "f679b170de6797f754c91182a69323922ad7b06f5f3fb7026f595fbd235904fc",
+  "0008_discovery_provenance.sql": "891115094f9f316b2a3334a5046318625a42588cedb73ff27600d1267a230250",
+  "0009_frontier_search_validation.sql": "b942ff13aa7180e1690336c28e079c5b8acc67a498159a417b5b6566d43ddb8a",
+  "0010_screening_separation.sql": "195dad78ab203a5f16c89a8a3f1c265fb680e28baacca8068061980eccbd1216",
+  "0011_immutable_corpus_release.sql": "54158b9b608374a074c6dd9d2c2fa0998c93c5339ad753e2c08d464e32ab47e5",
+  "0012_fulltext_acquisition.sql": "7c4d51b0a9644e11160ec522e01d6071278e679ff4ae852b41ac92c87840bee0",
+  "0013_legacy_v4_migration.sql": "7d85a8e2a82cc12514b10aa78b5276d32e24c427f778b15f874e01edc35043ff"
+}

@@ -1,0 +1,8 @@
+{
+  "search": "literal test",
+  "filters": {
+    "publication_year": 2024
+  },
+  "max_records": 3,
+  "page_size": 2
+}

@@ -1,0 +1,18 @@
+# Windows PE / static malware
+"portable executable" malware detection
+"Windows PE" malware detection
+"PE malware" machine learning
+"static malware detection" Windows
+"static analysis" malware "portable executable"
+
+# Temporal reliability / drift
+"concept drift" malware detection
+"temporal drift" malware detection
+"temporal degradation" malware detection
+"temporal robustness" malware detection
+
+# Adversarial / evasion
+"adversarial malware" detection
+"adversarial evasion" malware
+"evasive malware" machine learning
+"adversarial examples" malware detection

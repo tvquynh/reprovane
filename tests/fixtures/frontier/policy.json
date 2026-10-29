@@ -1,0 +1,12 @@
+{
+  "directions": ["BACKWARD_CITATION"],
+  "max_depth": 2,
+  "max_rounds": 3,
+  "max_seeds_per_round": 1,
+  "max_results_per_seed": 1,
+  "batch_or_page_size": 100,
+  "corpus": null,
+  "global_new_work_budget": 20,
+  "global_child_acquisition_budget": 20,
+  "saturation": null
+}
