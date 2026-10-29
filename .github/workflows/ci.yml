@@ -1,19 +1,48 @@
 name: ScholarFlow checks
 on: [push, pull_request]
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+
 jobs:
   verify:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python: ['3.11', '3.13']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install . build
-      - run: python -m unittest discover -s tests -q
+      - name: Install declared runtime dependencies
+        run: python -m pip install .
+      - name: Full offline unit suite (loopback fixtures only)
+        run: python tools/run_offline_tests.py
       - run: python -m scholarflow --version
       - run: python -m scholarflow doctor --offline
-      - run: python -m build
+
+  package:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install bounded build frontend
+        run: python -m pip install -r requirements-ci.txt
+      - name: Isolated wheel and sdist build
+        run: python -m build
+      - name: Inspect packages and validate clean noneditable installs
+        run: python tools/validate_ci_package.py

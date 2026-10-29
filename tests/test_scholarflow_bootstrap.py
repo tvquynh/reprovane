@@ -13,6 +13,17 @@ from stage12_fixtures import e2e
 ROOT=Path(__file__).parents[1]
 
 
+def assert_source_hygiene(root):
+    """Check distributed source, not ignored state of a developer checkout."""
+    if (root/'.git').exists():
+        names=subprocess.check_output(['git','-C',str(root),'ls-files','--cached','-z'],stderr=subprocess.PIPE).decode('utf-8').split('\0')
+    else:
+        names=[p.relative_to(root).as_posix() for p in root.rglob('*')]
+    for name in filter(None,names):
+        if {'.git','dist','build','.env'}.intersection(Path(name).parts):
+            raise AssertionError('Forbidden distributed source baggage: '+name)
+
+
 class TestScholarFlowIdentity(unittest.TestCase):
     def test_version(self):self.assertEqual(scholarflow.__version__,'1.0.0rc1')
     def test_distribution(self):self.assertEqual(tomllib.loads((ROOT/'pyproject.toml').read_text())['project']['name'],'scholarflow')
@@ -23,7 +34,7 @@ class TestScholarFlowIdentity(unittest.TestCase):
     def test_no_root_predecessor_cli(self):self.assertFalse((ROOT/'literature_pipeline.py').exists())
     def test_no_v5_migration_guide(self):self.assertFalse((ROOT/'MIGRATION_V4_TO_V5.md').exists());self.assertTrue((ROOT/'MIGRATION_TO_SCHOLARFLOW.md').is_file())
     def test_no_git_or_build_baggage(self):
-        for name in ('.git','dist','build','.env'):self.assertFalse((ROOT/name).exists())
+        assert_source_hygiene(ROOT)
     def test_predecessor_provenance(self):
         text=(ROOT/'PROVENANCE.md').read_text();self.assertIn('6ad3dde25d2a7a6e21591e8e6f131f3885b62ce7',text);self.assertIn('f70796d1ef6003e24ce3afa1328088cc515dc0a0',text)
     def test_archive_notice_is_draft(self):self.assertIn('unpublished draft',(ROOT/'OLD_REPOSITORY_ARCHIVE_NOTICE.md').read_text())
@@ -53,6 +64,43 @@ class TestScholarFlowIdentity(unittest.TestCase):
     def test_no_submitted_unknown_policy_relaxation(self):self.assertEqual(DEFAULT_POLICY['allowed_versions'],['publishedVersion','acceptedVersion']);self.assertFalse(DEFAULT_POLICY['allow_unknown_version'])
     def test_no_runtime_reference_cli_packaging(self):
         p=tomllib.loads((ROOT/'pyproject.toml').read_text());self.assertNotIn('py-modules',p['tool']['setuptools']);self.assertEqual(p['tool']['setuptools']['packages']['find']['include'],['scholarflow*'])
+
+
+class TestSourceExportHygiene(unittest.TestCase):
+    def test_clean_export_without_git(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'README.md').write_text('synthetic export')
+            assert_source_hygiene(root)
+
+    def test_export_rejects_each_original_baggage_name(self):
+        for name in ('.git','dist','build','.env'):
+            with self.subTest(name=name),tempfile.TemporaryDirectory() as folder:
+                root=Path(folder);(root/name).mkdir()
+                error=subprocess.CalledProcessError if name=='.git' else AssertionError
+                with self.assertRaises(error):assert_source_hygiene(root)
+
+    def test_export_rejects_nested_baggage(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'nested/build').mkdir(parents=True)
+            with self.assertRaises(AssertionError):assert_source_hygiene(root)
+
+    def test_checkout_allows_untracked_metadata_and_build_output(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            subprocess.run(['git','init','--quiet',str(root)],check=True)
+            (root/'README.md').write_text('synthetic tracked source')
+            subprocess.run(['git','-C',str(root),'add','README.md'],check=True)
+            for name in ('build','dist'):(root/name).mkdir()
+            assert_source_hygiene(root)
+
+    def test_checkout_rejects_tracked_baggage(self):
+        for name in ('dist/artifact','build/artifact','.env'):
+            with self.subTest(name=name),tempfile.TemporaryDirectory() as folder:
+                root=Path(folder)
+                subprocess.run(['git','init','--quiet',str(root)],check=True)
+                target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text('synthetic forbidden artifact')
+                subprocess.run(['git','-C',str(root),'add','--force',name],check=True)
+                with self.assertRaises(AssertionError):assert_source_hygiene(root)
 
 
 class TestScholarFlowCLI(unittest.TestCase):
