@@ -2,9 +2,9 @@
 
 ScholarFlow — Reproducible literature discovery, screening, and evidence management.
 
-ScholarFlow is a reproducible literature discovery, screening, evidence-management, corpus-release, and full-text acquisition platform. It is a successor product with its own version line: **1.0.0-rc1** (Python version **1.0.0rc1**), with stable **1.0.0** reserved for final acceptance.
+ScholarFlow is a reproducible literature discovery, screening, evidence-management, corpus-release, and full-text acquisition platform. This source tree prepares **ScholarFlow 1.0.0**, the stable product version promoted from the validated **1.0.0-rc1** architecture without scientific-semantic changes.
 
-Intended project repository: https://github.com/tvquynh/scholarflow. This bootstrap prepares that tree; it does not create or publish a repository or release.
+Project repository: https://github.com/tvquynh/scholarflow. Stable tag/release publication is a separate reviewed step; this source promotion does not publish it.
 
 ## Capabilities
 
@@ -20,10 +20,10 @@ OpenAlex, SCImago, Scopus, Web of Science and Unpaywall are providers, not the p
 
 ## Install and begin
 
-Python 3.11+; runtime dependencies are requests>=2.31,<3 and pypdf>=6,<7. Install the local candidate wheel with its declared dependencies; for offline installation prepare dependency wheels first.
+Python 3.11+; runtime dependencies are requests>=2.31,<3 and pypdf>=6,<7. Install the locally built ScholarFlow 1.0.0 wheel with its declared dependencies; for offline installation prepare dependency wheels first. No PyPI publication is assumed.
 
 ```powershell
-python -m pip install scholarflow-1.0.0rc1-py3-none-any.whl
+python -m pip install scholarflow-1.0.0-py3-none-any.whl
 scholarflow --version
 scholarflow --help
 scholarflow doctor --offline
@@ -46,4 +46,4 @@ python -m pip install build
 python -m build
 ```
 
-Release validation uses clean noneditable wheel and sdist installations. The bootstrap contains no Git metadata; initialize/import it only after review. No remote action, tag or publication is part of bootstrap preparation.
+Release validation uses clean noneditable wheel and sdist installations. Changes follow the protected PR and green-CI path; tag creation and external publication require separate review.

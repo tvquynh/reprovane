@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0
+
+ScholarFlow 1.0.0 promotes the validated 1.0.0-rc1 architecture without scientific-semantic changes.
+
+- Reproducible acquisition, typed observations and conservative publication/venue identity resolution.
+- Separate provider intelligence, citation discovery, bounded frontier and search validation.
+- Human screening/adjudication, immutable corpus releases and policy-bound OA full-text acquisition with a manual queue.
+- Hash/provenance verification and copy-on-write predecessor migration.
+- Product version becomes 1.0.0; database schema remains 13 and migrations 0001–0013 are unchanged. Stable tag/release publication is a separate reviewed step.
+
 ## 1.0.0-rc1
 
 Initial ScholarFlow release candidate.

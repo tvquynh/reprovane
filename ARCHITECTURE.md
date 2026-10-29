@@ -1,6 +1,6 @@
 # ScholarFlow architecture
 
-Product version: see scholarflow/_version.py. The candidate is 1.0.0rc1.
+Product version: see scholarflow/_version.py. The stable product version is 1.0.0; the database schema remains 13.
 
 ReviewProject/ProjectRevision -> provider acquisition/snapshots/records -> immutable typed observations -> Stage03 publication and Stage04 venue resolution -> Stage08 discovery -> Stage09 frontier/search validation -> Stage10 human screening -> Stage11 immutable corpus -> Stage11B full-text acquisition. Stage12 adds only legacy adapters and operational safety/packaging.
 
