@@ -1,0 +1,76 @@
+name: Publish Reprovane to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.repository == 'tvquynh/reprovane' && !github.event.release.draft && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.13'
+      - name: Install bounded build tooling
+        run: python -m pip install -r requirements-ci.txt
+      - name: Require the release commit on protected main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Isolated wheel and sdist build
+        run: python -m build
+      - name: Verify release tag, metadata and immutable migrations
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_REF: ${{ github.ref }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: python tools/validate_release.py
+      - name: Validate archives and clean noneditable installs
+        run: python tools/validate_ci_package.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: reprovane-pypi-distributions
+          path: |
+            dist/reprovane-2.0.0-py3-none-any.whl
+            dist/reprovane-2.0.0.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  publish-pypi:
+    needs: build
+    if: github.repository == 'tvquynh/reprovane'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/p/reprovane
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: reprovane-pypi-distributions
+          path: dist
+      - name: Require the exact distribution handoff
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root = Path('dist')
+          expected = {'reprovane-2.0.0-py3-none-any.whl', 'reprovane-2.0.0.tar.gz'}
+          assert {p.name for p in root.iterdir()} == expected
+          assert all(p.is_file() and not p.is_symlink() for p in root.iterdir())
+          PY
+      - name: Publish with PyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
