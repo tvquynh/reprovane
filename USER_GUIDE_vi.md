@@ -1,6 +1,6 @@
 # Hướng dẫn sử dụng Reprovane
 
-Hướng dẫn này nối tiếp [Quick Start](QUICKSTART_vi.md). Bạn đã có `$rp` trỏ tới chương trình và `$ws` trỏ tới workspace. Mỗi lần mở PowerShell mới phải đặt lại hai biến này. Nếu Application Control chặn launcher, dùng `& $py -m reprovane` thay `& $rp` theo Quick Start. Các ví dụ dưới đây dùng PowerShell; không gõ nguyên các tên biến ID cho đến khi đã lấy ID từ kết quả của bước tương ứng. Biến `$revision` trong Quick Start là đối tượng JSON; ở đây đặt `$revisionId = $revision.revision_id` để chỉ lấy ID trước khi chạy discovery/resolution.
+Hướng dẫn này nối tiếp [Quick Start](QUICKSTART_vi.md). Bạn đã có `$rp` trỏ tới chương trình và `$ws` trỏ tới workspace. Mỗi lần mở PowerShell mới phải đặt lại hai biến này. Nếu Application Control chặn launcher, dùng `& $py -m reprovane` thay `& $rp` theo Quick Start. Các ví dụ dưới đây dùng PowerShell; không gõ nguyên các tên biến ID cho đến khi đã lấy ID từ kết quả của bước tương ứng. Revision của bài thực hành và revision của acquisition CLI có thể khác nhau; bước 3 chỉ rõ cách lấy ID đúng.
 
 ## 1. Hiểu dữ liệu trước khi chạy
 
@@ -54,16 +54,24 @@ Ví dụ tạo spec nhỏ để người phụ trách xem lại trước khi ch�
 Đây là truy vấn minh họa, không phải chiến lược tổng quan hoàn chỉnh. Sau khi nhóm chấp thuận truy vấn, lệnh sau **sẽ gọi mạng**:
 
 ```powershell
-& $rp acquisition acquire --workspace "$ws" --spec acquisition-spec.json
+$acquisition = (& $rp acquisition acquire --workspace "$ws" --spec acquisition-spec.json | ConvertFrom-Json)
+if ($LASTEXITCODE -ne 0) { throw "Acquisition chưa hoàn tất; dừng và inspect trạng thái trước khi tiếp tục." }
+$acquisitionId = $acquisition.acquisition_id
+$revisionId = $acquisition.project_revision_id
+$acquisition | Select-Object acquisition_id, project_revision_id, snapshot_id, state
 ```
 
-Giữ `acquisition_id`, `snapshot_id` và trạng thái trả về. Nếu gián đoạn, dùng cùng spec và acquisition ID để resume, không nối một cursor cũ từ công cụ v4:
+CLI acquisition hiện **tự tạo/tái sử dụng revision theo spec** trong project nội bộ `openalex-acquisition`; nó không có cờ chọn revision của đề tài bạn vừa tạo trong Quick Start. Vì vậy, khi tiếp tục minh họa discovery bằng acquisition này, dùng đúng `$acquisition.project_revision_id` như trên. Không thay bằng `$revision.revision_id` của bài thực hành. Nếu nghiên cứu thật cần gắn nhiều acquisition vào revision đã chốt của đề tài, nhờ người phụ trách dùng API `OpenAlexAcquisitionStore.acquire(..., project_revision_id=...)` dưới cùng workspace lock; không sửa DB hoặc giả định CLI đã hỗ trợ tham số đó. Giới hạn này đặc biệt quan trọng khi so sánh nhiều chiến lược trong cùng revision.
+
+Giữ `acquisition_id`, `project_revision_id`, `snapshot_id` và trạng thái trả về; chỉ đăng ký acquisition có `state: COMPLETE`. Nếu gián đoạn, dùng cùng spec và acquisition ID để resume, không nối một cursor cũ từ công cụ v4:
 
 ```powershell
 # Đặt $acquisitionId bằng acquisition_id thật vừa nhận trước khi chạy.
 & $rp acquisition inspect --workspace "$ws" --acquisition-id $acquisitionId
 & $rp acquisition resume --workspace "$ws" --acquisition-id $acquisitionId --spec acquisition-spec.json
 ```
+
+Sau resume, chạy inspect và đọc lại các ID/trạng thái từ kết quả. Không tiếp tục với biến ID trống hoặc từ một lần chạy lỗi. Nếu thông báo lỗi không cho biết ID vừa tạo, người phụ trách cần kiểm tra trạng thái workspace bằng API thay vì đoán ID.
 
 Acquisition tạo bằng chứng nguồn, chưa tự tạo tập bài được chấp nhận. Không diễn giải số kết quả như độ bao phủ đã được chứng minh.
 
