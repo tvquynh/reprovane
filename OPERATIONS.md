@@ -1,42 +1,71 @@
-# ScholarFlow operations
+# Vận hành Reprovane
 
-Use Python 3.11+. Install the ScholarFlow 1.0.0 wheel and declared requests>=2.31,<3, pypdf>=6,<7 dependencies. For offline installation, prepare those dependency wheels locally first and run `python -m pip install --no-index --find-links <wheelhouse> <scholarflow-wheel>`. No imports/help/version execute research requests. Standard build tooling is build/setuptools/wheel, not runtime dependencies. No editable install is required.
+Đọc [Quick Start](QUICKSTART_vi.md) để cài và [hướng dẫn sử dụng](USER_GUIDE_vi.md) để thực hiện đề tài. Reprovane dùng Python 3.11+, `requests>=2.31,<3`, `pypdf>=6,<7`. Bản 2.0.0 đang chuẩn bị review, không giả định đã có trên registry. Các ví dụ `reprovane` dưới đây cần môi trường đã cài được đưa vào PATH; người mới dùng đường dẫn `$rp` như Quick Start.
 
-## Workflow and CLI routing
+## Nhận diện đúng thư mục và trạng thái
 
-`scholarflow --help` lists coherent command families. Existing module CLIs are thinly routed without scientific reimplementation. Use each family --help for its exact required arguments.
+Thư mục cài chứa chương trình; workspace chứa dữ liệu nghiên cứu. Đừng trộn chúng. Ghi lại đường dẫn workspace, phiên bản phần mềm, project/revision/run ID và hash manifest trong sổ theo dõi của nhóm. Trong PowerShell, `Get-Location` cho biết thư mục đang đứng; dùng đường dẫn tuyệt đối có dấu nháy để tránh thao tác nhầm.
 
-1. `workspace init --workspace <workspace>` creates schema through the current migration. `project create --key <key> --display-name <name> --workspace <workspace>` and `project revision --project-id <id> --number 1 --manifest <json> --workspace <workspace>` establish explicit review context. Offline.
-2. `scimago --workspace <workspace> --ref <pinned-ref> --import-snapshot` uses accepted pinned sync/import; `venue-data sync/import/resolve/query` handles the separate Scopus/WoS evidence families. Sync uses network unless --offline; import/resolution is offline. No universal indexed field is inferred.
-3. `acquisition --help` routes Stage07 bounded OpenAlex specs. Acquisition requires runtime OPENALEX_API_KEY and network; inspect/verify do not. No v4 cursor crosses into Stage07.
-4. `resolution create/add/generate/evaluate/materialize/seal` and `venue-resolution ...` delegate accepted Stage03/04. Supply an explicit observation selector JSON. Offline; ambiguous cases need explicit accepted API decisions, never title/fuzzy auto-merge.
-5. `discovery create/register-primary/resolve-seeds/.../seal` preserves routes and membership basis. Only explicit bounded expansion commands use network. Each acquisition must be in the exact revision.
-6. `frontier` and `search-validation` route Stage09 policies and audits. Planning/inspection/finalization are offline; explicit execution uses bounded accepted acquisition. Search validation does not decide screening/corpus.
-7. `screening create/export-review-packet/import-decisions/submit-decision/.../finalize` requires human provenance. Offline; no automated screening. Review packets refuse conflicting bytes and symlinks.
-8. `corpus create/materialize/finalize/verify/export/handoff` requires exact sealed screening. Offline immutable membership/metadata snapshots. Excluded outcomes never enter corpus. Use a new export destination for changed bytes.
-9. `fulltext create/discover/acquire/finalize/verify/export` binds one sealed corpus. Discover/acquire may use network and runtime OPENALEX_API_KEY/UNPAYWALL_EMAIL; enabled Unpaywall needs its email. Defaults allow published/accepted, reject submitted/UNKNOWN, including cached OpenAlex PDFs with unknown linkage. Verification is offline. Manual queue remains inside the complete corpus; manual ingest is not implemented. `export-pdfs` creates an optional same-byte-safe convenience view.
-10. `verify --workspace <workspace> --offline` verifies all sealed layers and CAS bytes; `doctor --offline --workspace <workspace> --full` diagnoses runtime/schema/FKs/dependencies/CAS and all sealed layers. Default doctor samples one sealed object per family; --full verifies all. Project/family inspect and verify use disposable DB snapshots and leave workspace bytes unchanged. No credential values are read for doctor; only process presence by name is shown, with User-env availability deliberately not inferred.
-
-ScholarFlow exposes only the scholarflow product CLI. Historical command implementations are test-only references; legacy migration is available through scholarflow legacy audit/plan/migrate/verify. Historical execution remains a predecessor responsibility (see PROVENANCE.md).
-
-## Locks and read-only snapshots
-
-Modern mutating module/root CLI workflows use one OS-held lock per workspace (`.scholarflow-writer.lock`). The file contains a PID and a non-secret format/state label, not credentials. Presence alone never implies an active owner. OS handle close/process exit releases ownership after crashes; inactive metadata remains for diagnosis. A second mutating CLI process fails safely. Read-only snapshot operations refuse active managed writers. Direct Python APIs remain composable; callers must hold `workspace_lock()` around multi-step mutations. Unmanaged old processes and distributed/untrusted filesystem races are not certified; stop them before snapshot/upgrade. Copy DB+WAL bytes to a temporary directory, compare source hashes before/after, recover only the copy, read CAS from the source. Recovery/migration registration on the copy never upgrades the original. Doctor's writability check is permission-based and creates no probe files.
-
-## Backup, upgrade and recovery
-
-```powershell
-scholarflow doctor --offline --workspace "current workspace"
-scholarflow workspace upgrade --workspace "current workspace" --target "upgraded workspace" --backup "verified DB backup"
-scholarflow verify --workspace "upgraded workspace" --offline
+```text
+reprovane --version
+reprovane doctor --offline --workspace "research workspace" --full
+reprovane verify --offline --workspace "research workspace"
 ```
 
-All three directories must be separate and non-overlapping. Current workspace remains unchanged. Check historical hashes before upgrade; SQLite backup API creates a complete DB copy (including recovered WAL state), verifies its SHA and records applied migration history. All authoritative layer manifests are in the DB. Private config/logs are never copied. Immutable CAS is omitted from the backup to avoid unnecessary duplication, but copied to the new operational target and verified there; retain the original CAS together with the DB backup for restore. No claim is made that a DB-only backup independently contains full-text bytes. A complete backup plan must separately preserve immutable CAS. Apply only additive migrations to the target, check FKs and all sealed objects, then write an upgrade manifest. Failed targets without a verified manifest are incomplete. Verified exact replays reuse target after checking source fingerprint/backup hash; changed source/backup requires a new destination. Never manually edit old migration history. Restore by copying verified backup DB to a new db/scholarflow.sqlite path with its original CAS, then doctor/verify; the original is the rollback source.
+`--version` là 2.0.0; workspace hiện hành phải có schema 13, không có vi phạm khóa ngoại. `doctor --full` kiểm tra toàn bộ đối tượng đã niêm phong; doctor mặc định chỉ lấy mẫu một đối tượng mỗi nhóm. Workspace mới có sealed_count bằng 0 là bình thường. `database: ABSENT` yêu cầu kiểm tra đường dẫn, không phải lý do tự xóa/tạo lại dữ liệu. Trạng thái cấu hình chỉ báo biến hiện diện trong process, không đọc/in key Windows User environment.
 
-## Output and exit behavior
+## Quy trình và chỗ có mạng
 
-JSON/JSONL/Markdown use UTF-8; deterministic CSV uses UTF-8/LF. Product/migration semantic outputs contain relative paths and CAS locators, not absolute machine paths. CLI errors omit private exception/input values. Root CLI: 0 success, 2 validation/configuration or lock failure, 3 integrity/history mismatch, 4 root SCImago transport/operational failure, 5 migration execution failure. Existing delegated family CLIs retain their documented safe code 2 (including failed acquisition); legacy codes remain compatible. No process exit code means a scientific inclusion/exclusion decision. Network failures in delegated acquisition are diagnosed in persisted operational status, not stderr payload dumps. There is no universal remapping of old exit codes.
+| Nhóm lệnh | Công việc | Kết nối |
+|---|---|---|
+| workspace, project | Khởi tạo, mô tả đề tài, revision | Ngoại tuyến |
+| acquisition | Lấy/resume OpenAlex có giới hạn | Acquire/resume có mạng; inspect không |
+| resolution, venue-resolution | Phân giải bảo thủ, niêm phong bằng chứng | Ngoại tuyến |
+| scimago, venue-data | Đồng bộ nguồn ghim, import/resolve/query riêng từng provider | Sync cần mạng trừ chế độ offline/cache |
+| discovery, frontier | Nguồn gốc phát hiện, trích dẫn, mở rộng có giới hạn | Các bước mở rộng/chạy acquisition có mạng |
+| search-validation | So sánh chiến lược/sentinel | Ngoại tuyến trên acquisition có sẵn |
+| screening | Packet, quyết định của người, phân xử | Ngoại tuyến |
+| corpus | Đóng băng thành viên/metadata, export | Ngoại tuyến |
+| fulltext | Kế hoạch và thu nhận OA cho corpus | Discover/acquire có thể có mạng; verify/export không |
+| legacy | Audit/plan/migrate bản v4 sang workspace riêng | Ngoại tuyến |
 
-## Reproducibility and limitations
+Chạy `reprovane <nhóm> --help`, rồi `reprovane <nhóm> <lệnh> --help` để xem tham số. Các nhãn `<...>` trong mô tả là chỗ cần thay, không chép dấu ngoặc vào PowerShell. Read-only inspect/verify/doctor dùng bản chụp DB tạm và không thay byte dữ liệu nguồn. API trực tiếp cần quản lý khóa như mục sau.
 
-Run tests with `python -m unittest discover -s tests -q`. Stage12's synthetic E2E uses fixed fixture-only ID/time factories to compare exact request/policy/item/manifest hashes and exports across fresh workspaces. Production operational IDs remain random and participate in accepted upstream manifests; independent production runs are different provenance contexts and are not promised identical hashes. No scientific hash implementation is changed for comparison. Windows validation covers PowerShell, spaces/Unicode/nested paths and exact LF migration/binary PDF bytes. Finite migration limits and small bounded stress fixtures are intentional, not a large-dataset benchmark. No signature/cryptographic source authenticity is implied by portable checksums. Source preparation does not itself authorize a tag or external publication.
+## Một writer và khóa trên đĩa
+
+Khóa thực tế là **`.litintel-writer.lock`**, giữ nguyên từ wheel công khai ScholarFlow 1.0.0. Tài liệu cũ ghi `.scholarflow-writer.lock` là sai tên thực tế; không tạo thêm `.reprovane-writer.lock`. DB vẫn là `db/litintel.sqlite`. Đây là tên tương thích định dạng, không cần “dọn sạch” để đổi thương hiệu.
+
+CLI ghi giữ khóa của hệ điều hành; tệp tồn tại chỉ là metadata, không chứng minh còn writer. Khi tiến trình đóng/crash, OS nhả khóa nhưng tệp có thể còn. Nếu báo active writer, tìm và dừng đúng chương trình theo cách bình thường, chờ nó đóng rồi doctor lại. Không xóa lock hoặc kill hàng loạt tiến trình để ép chạy. API Python trực tiếp phải giữ `reprovane.operations.lock.workspace_lock()` bao quanh các bước ghi liên quan. Không chạy hai phiên bản cùng ghi một workspace. Ổ mạng hoặc writer cũ không tham gia cơ chế khóa không được chứng nhận an toàn.
+
+## Sao lưu thường ngày
+
+1. Dừng mọi CLI/script/notebook đang dùng workspace, chờ kết thúc ghi.
+2. Sao chép **toàn bộ workspace** sang thư mục riêng có ngày/giờ. Giữ `db/` và toàn bộ CAS cùng nhau; không chỉ sao chép tệp SQLite khi còn writer/WAL đang thay đổi.
+3. Chạy doctor/verify trên bản sao và lưu kết quả. Giữ bản gốc; đừng dùng bản sao duy nhất làm nơi thử nghiệm.
+4. Giữ ít nhất một bản ngoài ổ đang làm việc theo chính sách nhóm. Không đưa API key hay cấu hình riêng tư vào kho Git/ZIP chia sẻ.
+
+CAS là kho nội dung theo hash, chứa bằng chứng thô và artifact; mất CAS thì DB riêng lẻ không phục hồi đủ dữ liệu. Bản sao đầy đủ có thể chứa bài/bằng chứng nhạy cảm: kiểm soát quyền truy cập.
+
+## Upgrade có backup và phục hồi
+
+Đổi tên 1.0.0 → 2.0.0 không cần upgrade schema. Khi có nhu cầu upgrade thực sự, dùng ba thư mục tách rời, không lồng nhau:
+
+```text
+reprovane doctor --offline --workspace "current workspace" --full
+reprovane workspace upgrade --workspace "current workspace" --target "upgraded workspace" --backup "verified DB backup"
+reprovane verify --offline --workspace "upgraded workspace"
+```
+
+Nguồn giữ nguyên. SQLite backup API tạo bản sao DB đầy đủ về trạng thái giao dịch; kiểm hash và migration history. Thư mục backup này **không nhân bản CAS**, còn target vận hành nhận CAS đã kiểm tra. Vì vậy giữ CAS gốc cùng DB backup. Private config/logs không được chuyển. Target thiếu upgrade manifest xác minh là chưa hoàn tất; không sử dụng như bản thành công. Replay chỉ dùng lại target nếu fingerprint/backup và mọi kiểm tra vẫn khớp; thay nguồn thì chọn target mới.
+
+Cách phục hồi dễ nhất là dùng bản sao toàn workspace đã xác minh ở thư mục mới. Nếu người quản trị phục hồi từ DB backup riêng, đặt DB vào đúng `db/litintel.sqlite` của workspace mới và khôi phục CAS nguyên gốc tương ứng, rồi doctor/verify đầy đủ. Không đổi thành `db/reprovane.sqlite` hoặc chỉnh tay lịch sử migration. Nếu integrity vẫn lỗi, giữ nguyên bằng chứng và nhờ người phụ trách; không chạy ghi tiếp.
+
+## Đọc lỗi và xin hỗ trợ
+
+Root CLI trả 0 khi thao tác thành công; 2 khi cấu hình/validation/lock không hợp lệ; 3 khi integrity/history sai; 4 cho lỗi vận hành/transport ở root scimago; 5 cho lỗi thực thi migration. Các CLI được route giữ mã an toàn 2 của module; không có mã thoát chung thể hiện include/exclude khoa học. Xem trạng thái acquisition đã lưu khi gặp lỗi mạng; không in response riêng tư ra màn hình để đoán.
+
+Trước khi gửi issue, chạy offline doctor, lưu version, tên lệnh, mã thoát và các trường trạng thái đã bỏ dữ liệu riêng. Không gửi key, header Authorization, cookie, đường dẫn tài khoản cá nhân, DB/PDF thật. Nếu thao tác tạo đối tượng đã thành công mà lệnh kế tiếp lỗi, inspect bằng ID có sẵn trước khi chạy lại create.
+
+## Giới hạn tái lập
+
+Suite E2E dùng ID và đồng hồ cố định **chỉ trong fixture**. Production vẫn sinh ID ngẫu nhiên, tham gia manifest; hai lần chạy độc lập không được hứa có cùng hash. Checksum kiểm nội dung so với hash đáng tin, không phải chữ ký nguồn, bảo đảm quyền sao chép hay chứng minh khoa học. Export từ chối symlink/tệp xung đột; dùng đích mới cho nội dung khác. UTF-8 cho JSON/JSONL/Markdown, CSV xác định dùng LF. Không sửa bytes đã niêm phong để “đẹp” hơn.

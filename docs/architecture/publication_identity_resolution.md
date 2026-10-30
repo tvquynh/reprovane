@@ -16,8 +16,8 @@ embedding, AI, author/venue identity, discovery traversal, screening or release.
 
 ```python
 from pathlib import Path
-from scholarflow.core.db import Database
-from scholarflow.resolution import ResolutionStore
+from reprovane.core.db import Database
+from reprovane.resolution import ResolutionStore
 
 with Database(Path("workspace")) as db:
     resolution = ResolutionStore(db)

@@ -156,7 +156,7 @@ item/entity/release IDs, release/item SHAs, exact DOI/Work/provider identifiers,
 existing OA/location data, title/venue evidence. No excluded item enters it. It
 implements no Stage11B acquisition, authority decision or Stage12 analysis.
 
-`python -m scholarflow.corpus_release` exposes create/materialize/inspect/finalize/
+`python -m reprovane.corpus_release` exposes create/materialize/inspect/finalize/
 verify/export/verify-export/handoff. Create needs --workspace, --project-revision,
 --screening-run and --plan JSON. Existing releases use --workspace and --release-id;
 exports use --directory. verify-export only needs --directory and optionally

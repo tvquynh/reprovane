@@ -3,17 +3,17 @@ import ast,contextlib,hashlib,io,json,os,shutil,sqlite3,subprocess,sys,tempfile,
 from pathlib import Path
 from unittest.mock import patch
 from stage12_fixtures import LEGACY,e2e
-from scholarflow import __version__
-from scholarflow.__main__ import main,ROUTES
-from scholarflow.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.legacy_migration import audit,plan,execute,LegacyMigrationStore
-from scholarflow.legacy_migration.inventory import sensitive,LIMITS
-from scholarflow.operations.workspace import doctor,initialize,upgrade,read_database,history
-from scholarflow.operations.lock import workspace_lock,lock_diagnosis
-from scholarflow.corpus_release.model import digest,sha
+from reprovane import __version__
+from reprovane.__main__ import main,ROUTES
+from reprovane.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.legacy_migration import audit,plan,execute,LegacyMigrationStore
+from reprovane.legacy_migration.inventory import sensitive,LIMITS
+from reprovane.operations.workspace import doctor,initialize,upgrade,read_database,history
+from reprovane.operations.lock import workspace_lock,lock_diagnosis
+from reprovane.corpus_release.model import digest,sha
 
 ROOT=Path(__file__).parents[1]
 
@@ -163,13 +163,13 @@ class TestOperations(TempCase):
         initialize(self.target);before=file_hashes(self.target);r=doctor(self.target,full=True);self.assertEqual(r['schema_version'],13);self.assertEqual(before,file_hashes(self.target))
     def test_doctor_sealed_migration(self):self.migrate();self.assertEqual(doctor(self.target,full=True)['sealed_integrity']['legacy_migration_run']['verified_count'],1)
     def test_doctor_never_resolves_credentials(self):
-        with patch('scholarflow.fulltext_acquisition.transport.runtime_credentials',side_effect=AssertionError('no read')):self.assertTrue(doctor()['offline'])
+        with patch('reprovane.fulltext_acquisition.transport.runtime_credentials',side_effect=AssertionError('no read')):self.assertTrue(doctor()['offline'])
     def test_os_lock_refuses_second_writer(self):
         with workspace_lock(self.target):
             with self.assertRaises(ValidationError):
                 with workspace_lock(self.target):pass
     def test_lock_crash_release_child(self):
-        self.target.mkdir();code="from scholarflow.operations.lock import workspace_lock; import os; c=workspace_lock("+repr(str(self.target))+"); c.__enter__(); os._exit(0)"
+        self.target.mkdir();code="from reprovane.operations.lock import workspace_lock; import os; c=workspace_lock("+repr(str(self.target))+"); c.__enter__(); os._exit(0)"
         p=subprocess.run([sys.executable,'-c',code],cwd=ROOT,capture_output=True);self.assertEqual(p.returncode,0)
         with workspace_lock(self.target):pass
     def test_inactive_lock_diagnosed(self):
@@ -179,7 +179,7 @@ class TestOperations(TempCase):
         initialize(self.target)
         with workspace_lock(self.target),self.assertRaises(ValidationError):doctor(self.target)
     def test_backup_upgrade_schema12(self):
-        from scholarflow.fulltext_acquisition import FullTextStore
+        from reprovane.fulltext_acquisition import FullTextStore
         with Database(self.target) as db:FullTextStore(db)
         before=file_hashes(self.target);result=upgrade(self.target,self.root/'upgraded',self.root/'backup');self.assertEqual(result['from_version'],12);self.assertEqual(result['to_version'],13);self.assertEqual(before,file_hashes(self.target));self.assertEqual(sha((self.root/'backup/database.sqlite').read_bytes()),result['backup_database_sha256'])
     def test_upgrade_idempotent_verified_replay(self):
@@ -221,7 +221,7 @@ class TestCLI(TempCase):
         code,out,_=self.invoke(['project','create','--workspace',str(self.target),'--key','synthetic','--display-name','Synthetic']);self.assertEqual(code,0);pid=json.loads(out)['project_id'];m=self.root/'protocol.json';m.write_text('{}');self.assertEqual(self.invoke(['project','revision','--workspace',str(self.target),'--project-id',pid,'--number','1','--manifest',str(m)])[0],0)
     def test_root_verify_is_read_only(self):initialize(self.target);before=file_hashes(self.target);self.assertEqual(self.invoke(['verify','--offline','--workspace',str(self.target)])[0],0);self.assertEqual(before,file_hashes(self.target))
     def test_delegated_inspect_missing_no_mutation(self):
-        from scholarflow.corpus_release.__main__ import main as corpus_cli
+        from reprovane.corpus_release.__main__ import main as corpus_cli
         with contextlib.redirect_stderr(io.StringIO()):self.assertEqual(corpus_cli(['inspect','--workspace',str(self.target),'--release-id','missing']),2)
         self.assertFalse(self.target.exists())
     def test_legacy_help_exact(self):
@@ -241,10 +241,10 @@ for family in [*ROUTES,'workspace','legacy','project','resolution','venue-resolu
 
 class TestReleasePackage(unittest.TestCase):
     def test_single_version_metadata(self):
-        p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['tool']['setuptools']['dynamic']['version']['attr'],'scholarflow._version.__version__');self.assertEqual(__version__,'1.0.0')
+        p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['tool']['setuptools']['dynamic']['version']['attr'],'reprovane._version.__version__');self.assertEqual(__version__,'2.0.0')
     def test_runtime_dependencies_explicit(self):self.assertEqual(tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['project']['dependencies'],['requests>=2.31,<3','pypdf>=6,<7'])
-    def test_installed_entrypoints_declared(self):p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['project']['scripts']['scholarflow'],'scholarflow.__main__:main')
-    def test_migration_package_data(self):self.assertIn('migrations/*.sql',tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['tool']['setuptools']['package-data']['scholarflow.core'])
+    def test_installed_entrypoints_declared(self):p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['project']['scripts']['reprovane'],'reprovane.__main__:main')
+    def test_migration_package_data(self):self.assertIn('migrations/*.sql',tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['tool']['setuptools']['package-data']['reprovane.core'])
     def test_no_unbounded_build_major(self):self.assertTrue(all('<' in v for v in tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['build-system']['requires']))
     def test_distribution_excludes_local_data(self):s=(ROOT/'MANIFEST.in').read_text();self.assertIn('prune data',s);self.assertIn('.env',s)
     def test_required_guides(self):
@@ -266,17 +266,17 @@ class TestE2E(unittest.TestCase):
 
 class TestStaticSecurity(unittest.TestCase):
     def test_migration_has_no_authority_writes(self):
-        tree=ast.parse((ROOT/'scholarflow/legacy_migration/store.py').read_text(encoding='utf-8'))
+        tree=ast.parse((ROOT/'reprovane/legacy_migration/store.py').read_text(encoding='utf-8'))
         for node in ast.walk(tree):
             if isinstance(node,ast.Constant) and isinstance(node.value,str):self.assertNotIn('INSERT INTO screening_',node.value);self.assertNotIn('INSERT INTO corpus_release',node.value)
     def test_no_unsafe_execution_or_network_in_migration(self):
-        for p in (ROOT/'scholarflow/legacy_migration').glob('*.py'):
+        for p in (ROOT/'reprovane/legacy_migration').glob('*.py'):
             t=ast.parse(p.read_text(encoding='utf-8'))
             for n in ast.walk(t):
                 if isinstance(n,ast.Call):self.assertNotIn(ast.unparse(n.func),['eval','exec','pickle.loads','subprocess.run','requests.get'])
     def test_no_ai_ocr_imports(self):
         for folder in ('screening','corpus_release','fulltext_acquisition','legacy_migration','operations'):
-            for p in (ROOT/'scholarflow'/folder).glob('*.py'):
+            for p in (ROOT/'reprovane'/folder).glob('*.py'):
                 t=ast.parse(p.read_text(encoding='utf-8'))
                 for n in ast.walk(t):
                     if isinstance(n,(ast.Import,ast.ImportFrom)):self.assertFalse(any(x in ast.unparse(n).lower() for x in ('import openai','import anthropic','import pytesseract','sentence_transformers')))

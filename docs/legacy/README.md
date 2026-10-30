@@ -1,1 +1,1 @@
-Historical predecessor material, retained only for provenance. ScholarFlow documentation starts at the root README and PROVENANCE.md. The test-only command reference under tests/legacy_reference is never installed.
+Historical predecessor material, retained only for provenance. These old manuals and commands are not the current user guide. Reprovane documentation starts at the root README.md, QUICKSTART_vi.md and USER_GUIDE_vi.md; lineage is recorded in PROVENANCE.md. The test-only command reference under tests/legacy_reference is never installed.

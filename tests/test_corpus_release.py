@@ -5,16 +5,16 @@ from unittest.mock import patch
 from corpus_release_fixtures import CorpusCase,plan
 from openalex_acquisition_fixtures import work
 from screening_fixtures import plan as screening_plan
-from scholarflow.corpus_release import CorpusReleaseStore,CorpusReleasePlan,verify_export
-from scholarflow.corpus_release.model import digest,sha
-from scholarflow.corpus_release.portable import render_files
-from scholarflow.corpus_release.__main__ import main
-from scholarflow.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.screening import ScreeningStore
-from scholarflow.observations import NormalizationProvenance
-from scholarflow.search_validation import SearchValidationStore
+from reprovane.corpus_release import CorpusReleaseStore,CorpusReleasePlan,verify_export
+from reprovane.corpus_release.model import digest,sha
+from reprovane.corpus_release.portable import render_files
+from reprovane.corpus_release.__main__ import main
+from reprovane.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.screening import ScreeningStore
+from reprovane.observations import NormalizationProvenance
+from reprovane.search_validation import SearchValidationStore
 
 
 class TestCorpusReleasePlan(unittest.TestCase):
@@ -232,7 +232,7 @@ class TestCorpusPortable(CorpusCase):
     def test_manifest_hash_bound_when_requested(self):
         with self.assertRaises(ArtifactIntegrityError): verify_export(self.directory,expected_manifest_sha256='0'*64)
     def test_portable_verification_without_db(self):
-        with patch('scholarflow.core.db.Database',side_effect=AssertionError('DB unavailable')): self.assertTrue(verify_export(self.directory)['valid'])
+        with patch('reprovane.core.db.Database',side_effect=AssertionError('DB unavailable')): self.assertTrue(verify_export(self.directory)['valid'])
     def test_modified_data_even_rehashed_checksums_detected(self):
         path=self.directory/'corpus.jsonl'; lines=path.read_text(encoding='utf-8').splitlines(); lines.pop(); path.write_text('\n'.join(lines)+'\n',encoding='utf-8'); checks=''.join(sha((self.directory/name).read_bytes())+'  '+name+'\n' for name in ['corpus.csv','corpus.jsonl','manifest.json']); (self.directory/'SHA256SUMS.txt').write_text(checks,encoding='utf-8')
         with self.assertRaises(ArtifactIntegrityError): verify_export(self.directory)
@@ -266,11 +266,11 @@ class TestCorpusHandoffStatistics(CorpusCase):
 class TestCorpusSeparation(CorpusCase):
     def test_no_network_credentials_or_upstream_mutation_invoked(self):
         self.prepare()
-        with patch('socket.socket.connect',side_effect=AssertionError('network')),patch('requests.sessions.Session.request',side_effect=AssertionError('HTTP')),patch('scholarflow.openalex_acquisition.credentials.local_client',side_effect=AssertionError('credentials')),patch.object(ScreeningStore,'submit_decision',side_effect=AssertionError('new review')),patch.object(ScreeningStore,'submit_adjudication',side_effect=AssertionError('new adjudication')),patch.object(self.discovery.resolver,'create_resolution_run',side_effect=AssertionError('new resolution')):
+        with patch('socket.socket.connect',side_effect=AssertionError('network')),patch('requests.sessions.Session.request',side_effect=AssertionError('HTTP')),patch('reprovane.openalex_acquisition.credentials.local_client',side_effect=AssertionError('credentials')),patch.object(ScreeningStore,'submit_decision',side_effect=AssertionError('new review')),patch.object(ScreeningStore,'submit_adjudication',side_effect=AssertionError('new adjudication')),patch.object(self.discovery.resolver,'create_resolution_run',side_effect=AssertionError('new resolution')):
             self.create_release(); self.releases.finalize(self.crid); self.releases.export(self.crid,self.root/'offline'); self.releases.handoff(self.crid)
         self.assertFalse(self.client.api_key)
     def test_import_call_graph_no_new_engines(self):
-        for path in (Path(__file__).parents[1]/'scholarflow/corpus_release').glob('*.py'):
+        for path in (Path(__file__).parents[1]/'reprovane/corpus_release').glob('*.py'):
             for n in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
                 if isinstance(n,(ast.Import,ast.ImportFrom)):
                     names=[a.name for a in n.names]+[getattr(n,'module','') or '']; self.assertFalse(any(name.split('.')[0] in ['requests','httpx','urllib','openai','transformers','sentence_transformers','subprocess','fulltext','unpaywall'] for name in names))
@@ -280,7 +280,7 @@ class TestCorpusSeparation(CorpusCase):
     def test_cli_help_and_db_free_verifier(self):
         with contextlib.redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as error: main(['--help'])
         self.assertEqual(error.exception.code,0); self.release(); self.releases.export(self.crid,self.root/'cli')
-        with patch('scholarflow.corpus_release.__main__.Database',side_effect=AssertionError('DB unavailable')),contextlib.redirect_stdout(io.StringIO()): self.assertEqual(main(['verify-export','--directory',str(self.root/'cli')]),0)
+        with patch('reprovane.corpus_release.__main__.Database',side_effect=AssertionError('DB unavailable')),contextlib.redirect_stdout(io.StringIO()): self.assertEqual(main(['verify-export','--directory',str(self.root/'cli')]),0)
     def test_private_metadata_fails_closed_not_membership_filter(self):
         self.prepare([work(1,title='Private contact person@example.invalid')],include_count=1); self.create_release()
         with self.assertRaises(ValidationError): self.releases.materialize(self.crid)

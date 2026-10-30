@@ -5,17 +5,17 @@ from unittest.mock import patch
 from venue_intelligence_fixtures import IntelligenceCase,SCOPUS_HEADER,WOS_HEADER,write_csv,scopus_row,wos_row
 from mirror_fixtures import A,B,REPO,raw,Response
 from venue_fixtures import VenueCase,issn,build_package,SELECTOR
-from scholarflow.core import ValidationError,ImmutabilityError
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.observations import NormalizationProvenance
-from scholarflow.venue_intelligence import VenueIntelligenceStore,import_venue_lists,sync_venue_lists,resolve_imported_snapshots,VenueIntelligence,PROFILES
-from scholarflow.venue_intelligence.parsers import parse_rows,coverage
-from scholarflow.mirror import MirrorSyncError,MirrorOfflineError
-from scholarflow.venue_intelligence.__main__ import main
-from scholarflow.providers.scimago import import_scimago_source_snapshot
-from scholarflow.venue_resolution.projection import ScimagoVenueProjection
-from scholarflow.core.migrations import apply_migrations
+from reprovane.core import ValidationError,ImmutabilityError
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.observations import NormalizationProvenance
+from reprovane.venue_intelligence import VenueIntelligenceStore,import_venue_lists,sync_venue_lists,resolve_imported_snapshots,VenueIntelligence,PROFILES
+from reprovane.venue_intelligence.parsers import parse_rows,coverage
+from reprovane.mirror import MirrorSyncError,MirrorOfflineError
+from reprovane.venue_intelligence.__main__ import main
+from reprovane.providers.scimago import import_scimago_source_snapshot
+from reprovane.venue_resolution.projection import ScimagoVenueProjection
+from reprovane.core.migrations import apply_migrations
 
 
 class TestVenueIntelligence(IntelligenceCase):
@@ -159,12 +159,12 @@ class TestVenueIntelligence(IntelligenceCase):
     def test_active_absent_scimago_query(self):
         result=self.resolution(); store=self.store.venues; rid=result['run']['venue_resolution_run_id']; eid=store.list_venue_entities(rid)[0]['venue_entity_id']; self.assertEqual(VenueIntelligence(store).query(rid,eid)['scopus']['statuses'],['ACTIVE']); self.assertEqual(ScimagoVenueProjection(store).scimago_presence_status(rid,eid),'SCIMAGO_ABSENT')
     def test_upgrade_accepted_stage05_schema(self):
-        from scholarflow.venue_resolution import VenueResolutionStore
+        from reprovane.venue_resolution import VenueResolutionStore
         with Database(self.root/'upgrade') as db:
             VenueResolutionStore(db); self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0],5); VenueIntelligenceStore(db); self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0],6)
     def test_migration6_drift_detected(self):
         import shutil
-        from scholarflow.core.migrations import MIGRATION_DIR
+        from reprovane.core.migrations import MIGRATION_DIR
         folder=self.root/'migrations'; shutil.copytree(MIGRATION_DIR,folder); path=folder/'0006_venue_provider_attributes.sql'; path.write_text(path.read_text()+'\n-- altered\n')
         with self.assertRaises(Exception): apply_migrations(self.db.connection,folder,target_version=6)
     def test_unknown_status_does_not_follow_discontinued(self):
@@ -175,7 +175,7 @@ class TestVenueIntelligence(IntelligenceCase):
         self.assertEqual(self.db.execute('SELECT count(*) FROM provider_snapshot').fetchone()[0],0)
     def test_no_fuzzy_or_ai_imports(self):
         import ast
-        folder=Path(__file__).parents[1]/'scholarflow/venue_intelligence'
+        folder=Path(__file__).parents[1]/'reprovane/venue_intelligence'
         for path in folder.glob('*.py'):
             for node in ast.walk(ast.parse(path.read_text())):
                 if isinstance(node,ast.Import): self.assertFalse({n.name.split('.')[0] for n in node.names}&{'openai','rapidfuzz','fuzzywuzzy','difflib','subprocess'})

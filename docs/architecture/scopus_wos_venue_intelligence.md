@@ -139,12 +139,12 @@ The separate feature entry point follows argparse/subcommand conventions and
 never loads private v4 config or OpenAlex credentials:
 
 ```powershell
-python -m scholarflow.venue_intelligence sync --workspace C:/research/venues
-python -m scholarflow.venue_intelligence sync --workspace C:/research/venues --offline --ref <full-sha>
-python -m scholarflow.venue_intelligence import --workspace C:/research/venues --snapshot-directory <sync-result-directory>
-python -m scholarflow.venue_intelligence stats --workspace C:/research/venues --snapshot-id <snapshot>
-python -m scholarflow.venue_intelligence resolve --workspace C:/research/venues --snapshot-id <scopus-snapshot> --snapshot-id <wos-snapshot>
-python -m scholarflow.venue_intelligence query --workspace C:/research/venues --run-id <run> --entity-id <venue>
+python -m reprovane.venue_intelligence sync --workspace C:/research/venues
+python -m reprovane.venue_intelligence sync --workspace C:/research/venues --offline --ref <full-sha>
+python -m reprovane.venue_intelligence import --workspace C:/research/venues --snapshot-directory <sync-result-directory>
+python -m reprovane.venue_intelligence stats --workspace C:/research/venues --snapshot-id <snapshot>
+python -m reprovane.venue_intelligence resolve --workspace C:/research/venues --snapshot-id <scopus-snapshot> --snapshot-id <wos-snapshot>
+python -m reprovane.venue_intelligence query --workspace C:/research/venues --run-id <run> --entity-id <venue>
 ```
 
 For replacement source lists: update the mirror data/README and commit GitHub,

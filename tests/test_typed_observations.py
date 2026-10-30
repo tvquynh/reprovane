@@ -7,12 +7,12 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from scholarflow.core import FoundationError, ImmutabilityError, MigrationDriftError, MigrationError, ValidationError
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.observations import NormalizationProvenance, ObservationStore
-from scholarflow.observations.store import TABLES
+from reprovane.core import FoundationError, ImmutabilityError, MigrationDriftError, MigrationError, ValidationError
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.observations import NormalizationProvenance, ObservationStore
+from reprovane.observations.store import TABLES
 
 
 class TypedObservationCase(unittest.TestCase):
@@ -484,7 +484,7 @@ class TypedObservationCase(unittest.TestCase):
     def test_synthetic_fixture_and_no_integration_imports(self):
         # Whitelist imports rather than scanning fixture strings for the word "token".
         import ast
-        package = Path(__file__).resolve().parents[1] / 'scholarflow/observations'
+        package = Path(__file__).resolve().parents[1] / 'reprovane/observations'
         for path in package.glob('*.py'):
             tree = ast.parse(path.read_text(encoding='utf-8'))
             for node in ast.walk(tree):

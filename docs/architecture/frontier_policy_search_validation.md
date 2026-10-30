@@ -160,9 +160,9 @@ definitions/request identity/checkpoint, and compares semantic/final hashes.
 
 ## Interfaces, constraints and documentation
 
-`python -m scholarflow.frontier`: create, plan-next, run-next, run-to-policy-stop,
+`python -m reprovane.frontier`: create, plan-next, run-next, run-to-policy-stop,
 inspect, finalize. Create requires --project-revision, --discovery-run and --policy
-JSON. `python -m scholarflow.search_validation`: create, execute, inspect, finalize.
+JSON. `python -m reprovane.search_validation`: create, execute, inspect, finalize.
 Create requires --project-revision and --plan JSON containing variants/sentinels/
 optional thresholds. All commands require --workspace; existing runs use --run-id.
 Execution may read ignored local --config via Stage07 credential resolution.

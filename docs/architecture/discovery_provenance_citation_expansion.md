@@ -2,7 +2,7 @@
 
 Stage08 starts from accepted Stage07 commit
 `ab3f3e1586f718fab4daf5d702188e39aeb892bf`. It adds migration0008 and
-`scholarflow.discovery`. Historical code, migrations, resolver rules, dependencies
+`reprovane.discovery`. Historical code, migrations, resolver rules, dependencies
 and CLI commands are unchanged.
 
 ## Identity and evidence
@@ -110,7 +110,7 @@ membership count is zero, not an estimate.
 
 `DiscoveryStore(database)` offers create(project_revision_id), register_primary,
 resolve_seeds, expand_backward/forward, materialize, seal, inspect and verify.
-`python -m scholarflow.discovery --help` exposes matching commands except verify.
+`python -m reprovane.discovery --help` exposes matching commands except verify.
 All need `--workspace`; create needs `--project-revision`; expansion needs `--seeds`
 (UTF-8 JSON descriptors) and `--max-results`. `--batch-size` means backward OR
 batch or forward page size. Optional local `--config` delegates to Stage07.

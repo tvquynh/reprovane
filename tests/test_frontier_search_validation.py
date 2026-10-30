@@ -2,15 +2,15 @@
 import ast,contextlib,io,json,sqlite3,unittest
 from pathlib import Path
 from unittest.mock import patch
-from scholarflow.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.frontier import FrontierPolicy,FrontierStore
-from scholarflow.search_validation import SearchValidationStore
-from scholarflow.search_validation.store import sentinel
-from scholarflow.frontier.__main__ import main as frontier_cli
-from scholarflow.search_validation.__main__ import main as validation_cli
-from scholarflow.discovery import DiscoveryStore
+from reprovane.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.frontier import FrontierPolicy,FrontierStore
+from reprovane.search_validation import SearchValidationStore
+from reprovane.search_validation.store import sentinel
+from reprovane.frontier.__main__ import main as frontier_cli
+from reprovane.search_validation.__main__ import main as validation_cli
+from reprovane.discovery import DiscoveryStore
 from test_discovery import DiscoveryCase
 from openalex_acquisition_fixtures import work,page,Response
 
@@ -282,7 +282,7 @@ class TestStage09Separation(Stage09Case):
         self.primary([work(1,referenced_works=[])]); fid=self.frontier_run(max_rounds=1); self.to_stop(fid); self.frontier.finalize(fid); row=self.frontier.rounds(fid)[0]; result=json.loads(row['result_json']); result['selected_seed_count']=99; self.db.connection.execute('DROP TRIGGER frontier_round_update'); self.db.connection.execute('UPDATE frontier_round SET result_json=? WHERE frontier_run_id=?',(json.dumps(result),fid))
         with self.assertRaises(ArtifactIntegrityError): self.frontier.verify(fid)
     def test_no_network_identity_or_screening_engine_imports(self):
-        root=Path(__file__).parents[1]/'scholarflow'
+        root=Path(__file__).parents[1]/'reprovane'
         for path in [root/'stage09.py',*(root/'frontier').glob('*.py'),*(root/'search_validation').glob('*.py')]:
             for node in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
                 if isinstance(node,(ast.Import,ast.ImportFrom)):
@@ -291,12 +291,12 @@ class TestStage09Separation(Stage09Case):
         schema=' '.join(r[0].lower() for r in self.db.execute("SELECT sql FROM sqlite_master WHERE type='table' AND (name LIKE 'frontier_%' OR name LIKE 'search_validation_%')"))
         for name in ['included','excluded','eligibility','reviewer_vote','corpus_membership','relevance_score']: self.assertNotIn(name,schema)
     def test_help_no_credentials(self):
-        for cli,module in [(frontier_cli,'scholarflow.frontier.__main__'),(validation_cli,'scholarflow.search_validation.__main__')]:
+        for cli,module in [(frontier_cli,'reprovane.frontier.__main__'),(validation_cli,'reprovane.search_validation.__main__')]:
             with patch(module+'.local_client',side_effect=AssertionError('credential access')),contextlib.redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as error: cli(['--help'])
             self.assertEqual(error.exception.code,0)
     def test_inspect_no_credentials(self):
         fid=self.frontier_run(); vid=self.validation_run()
-        for cli,module,rid in [(frontier_cli,'scholarflow.frontier.__main__',fid),(validation_cli,'scholarflow.search_validation.__main__',vid)]:
+        for cli,module,rid in [(frontier_cli,'reprovane.frontier.__main__',fid),(validation_cli,'reprovane.search_validation.__main__',vid)]:
             with patch(module+'.local_client',side_effect=AssertionError('credential access')),contextlib.redirect_stdout(io.StringIO()): self.assertEqual(cli(['inspect','--workspace',str(self.db.workspace),'--run-id',rid]),0)
     def test_all_stage09_sql_evidence_immutable(self):
         self.primary([work(1,referenced_works=['https://openalex.org/W1'])]); fid=self.frontier_run(max_rounds=1); self.to_stop(fid); self.frontier.finalize(fid); vid=self.validation_run(sentinels=[dict(namespace='openalex_work_id',value='W1')]); self.validation.execute(vid); self.validation.finalize(vid)

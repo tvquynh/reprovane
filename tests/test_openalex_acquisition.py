@@ -4,15 +4,15 @@ from unittest.mock import patch
 from pathlib import Path
 import requests
 from openalex_acquisition_fixtures import AcquisitionCase,Response,Session,SYNTHETIC_KEY,SYNTHETIC_EMAIL,work,page
-from scholarflow.core import ValidationError,ImmutabilityError
-from scholarflow.core.db import Database
-from scholarflow.openalex import OpenAlexClient
-from scholarflow.openalex_http import OpenAlexHTTPError,OpenAlexPayloadError
-from scholarflow.openalex_acquisition import AcquisitionSpec,OpenAlexAcquisitionStore
-from scholarflow.openalex_acquisition.credentials import local_client
-from scholarflow.openalex_acquisition.__main__ import main
-from scholarflow.openalex_acquisition.normalize import normalize_work
-from scholarflow.core.migrations import MIGRATION_DIR,apply_migrations
+from reprovane.core import ValidationError,ImmutabilityError
+from reprovane.core.db import Database
+from reprovane.openalex import OpenAlexClient
+from reprovane.openalex_http import OpenAlexHTTPError,OpenAlexPayloadError
+from reprovane.openalex_acquisition import AcquisitionSpec,OpenAlexAcquisitionStore
+from reprovane.openalex_acquisition.credentials import local_client
+from reprovane.openalex_acquisition.__main__ import main
+from reprovane.openalex_acquisition.normalize import normalize_work
+from reprovane.core.migrations import MIGRATION_DIR,apply_migrations
 
 
 class TestAcquisitionSpec(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestOpenAlexAcquisition(AcquisitionCase):
     def test_schema7_upgrade_idempotent(self):
         self.assertEqual(self.db.execute('PRAGMA user_version').fetchone()[0],7); OpenAlexAcquisitionStore(self.db); self.assertEqual(self.db.execute('SELECT max(version) FROM schema_migration').fetchone()[0],7)
     def test_explicit_schema6_upgrade(self):
-        from scholarflow.venue_intelligence import VenueIntelligenceStore
+        from reprovane.venue_intelligence import VenueIntelligenceStore
         with Database(self.root/'upgrade') as db:
             VenueIntelligenceStore(db); self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0],6); OpenAlexAcquisitionStore(db); self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0],7)
     def test_migration_drift(self):
@@ -125,7 +125,7 @@ class TestOpenAlexAcquisition(AcquisitionCase):
     def test_no_publication_resolution_performed(self):
         self.acquire([Response(page())]); self.assertEqual(self.db.execute('SELECT count(*) FROM resolution_run').fetchone()[0],0)
     def test_database_normalization_failure_atomic_resume_without_http(self):
-        with patch('scholarflow.openalex_acquisition.store.normalize_work',side_effect=ValidationError('injected')):
+        with patch('reprovane.openalex_acquisition.store.normalize_work',side_effect=ValidationError('injected')):
             with self.assertRaises(ValidationError): self.acquire([Response(page())])
         r=dict(self.db.execute('SELECT * FROM openalex_acquisition').fetchone()); self.assertEqual(r['state'],'INTERRUPTED'); self.assertIsNone(r['snapshot_id']); self.assertEqual(self.db.execute('SELECT count(*) FROM provider_snapshot').fetchone()[0],0)
         self.assertEqual(self.db.execute('SELECT count(*) FROM publication_metadata_observation').fetchone()[0],0); done=self.store.resume(r['acquisition_id'],json.loads(r['request_spec_json']),self.client); self.assertEqual(done['state'],'COMPLETE'); self.assertEqual(len(self.session.calls),1)
@@ -184,10 +184,10 @@ class TestOpenAlexAcquisition(AcquisitionCase):
             client=local_client(config_path=config,session=Session()); self.assertEqual(client.api_key,SYNTHETIC_KEY); self.assertNotIn(SYNTHETIC_KEY,repr(client.private)); client.close()
     def test_new_windows_user_environment_fallback(self):
         config=self.root/'empty-config.json'; config.write_text('{}')
-        with patch.dict(os.environ,{},clear=True),patch('scholarflow.openalex_acquisition.credentials._user_environment_key',return_value=SYNTHETIC_KEY):
+        with patch.dict(os.environ,{},clear=True),patch('reprovane.openalex_acquisition.credentials._user_environment_key',return_value=SYNTHETIC_KEY):
             client=local_client(config_path=config,session=Session()); self.assertEqual(client.api_key,SYNTHETIC_KEY); client.close()
     def test_cli_help_no_credentials_network(self):
-        with patch('scholarflow.openalex_acquisition.__main__.local_client',side_effect=AssertionError('forbidden')),redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as cm: main(['--help'])
+        with patch('reprovane.openalex_acquisition.__main__.local_client',side_effect=AssertionError('forbidden')),redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as cm: main(['--help'])
         self.assertEqual(cm.exception.code,0)
     def test_nonofficial_host_rejected(self):
         with self.assertRaises(ValueError): OpenAlexClient(base_url='https://example.invalid/works')
@@ -201,7 +201,7 @@ class TestOpenAlexAcquisition(AcquisitionCase):
         with self.assertRaises(OpenAlexPayloadError): self.acquire([Response(page([work(title=SYNTHETIC_EMAIL)]))])
     def test_cli_acquire_inspect(self):
         spec=self.root/'spec.json'; spec.write_text(json.dumps(dict(search='cli',max_records=1))); self.session.responses=[Response(page())]; out=io.StringIO()
-        with patch('scholarflow.openalex_acquisition.__main__.local_client',return_value=self.client),redirect_stdout(out): self.assertEqual(main(['acquire','--workspace',str(self.root/'cli'),'--spec',str(spec)]),0)
+        with patch('reprovane.openalex_acquisition.__main__.local_client',return_value=self.client),redirect_stdout(out): self.assertEqual(main(['acquire','--workspace',str(self.root/'cli'),'--spec',str(spec)]),0)
         result=json.loads(out.getvalue()); out=io.StringIO()
-        with patch('scholarflow.openalex_acquisition.__main__.local_client',side_effect=AssertionError('no network')),redirect_stdout(out): self.assertEqual(main(['inspect','--workspace',str(self.root/'cli'),'--acquisition-id',result['acquisition_id']]),0)
+        with patch('reprovane.openalex_acquisition.__main__.local_client',side_effect=AssertionError('no network')),redirect_stdout(out): self.assertEqual(main(['inspect','--workspace',str(self.root/'cli'),'--acquisition-id',result['acquisition_id']]),0)
         self.assertIn('COMPLETE',out.getvalue())

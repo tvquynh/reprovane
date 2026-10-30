@@ -19,8 +19,8 @@ Foundation.verify_provider_snapshot detects later external byte tampering.
 
 ```python
 from pathlib import Path
-from scholarflow.core.db import Database
-from scholarflow.observations import ObservationStore, NormalizationProvenance
+from reprovane.core.db import Database
+from reprovane.observations import ObservationStore, NormalizationProvenance
 
 with Database(Path("workspace")) as db:
     observations = ObservationStore(db)  # explicitly upgrades/validates schema v3

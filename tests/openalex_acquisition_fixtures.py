@@ -1,8 +1,8 @@
 import json,tempfile,unittest
 from pathlib import Path
-from scholarflow.core.db import Database
-from scholarflow.openalex import OpenAlexClient
-from scholarflow.openalex_acquisition import OpenAlexAcquisitionStore,AcquisitionSpec
+from reprovane.core.db import Database
+from reprovane.openalex import OpenAlexClient
+from reprovane.openalex_acquisition import OpenAlexAcquisitionStore,AcquisitionSpec
 
 SYNTHETIC_KEY='SYNTHETIC_OPENALEX_TEST_CREDENTIAL_NOT_REAL'
 SYNTHETIC_EMAIL='synthetic-private@example.invalid'

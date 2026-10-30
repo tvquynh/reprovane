@@ -1,10 +1,10 @@
 import csv,json,hashlib,tempfile,unittest
 from pathlib import Path
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.observations import ObservationStore,NormalizationProvenance
-from scholarflow.venue_resolution import VenueResolutionStore
-from scholarflow.providers.scimago import NORMALIZER
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.observations import ObservationStore,NormalizationProvenance
+from reprovane.venue_resolution import VenueResolutionStore
+from reprovane.providers.scimago import NORMALIZER
 
 HEADER=['Rank','Sourceid','Title','Type','Issn','Publisher','Open Access','Open Access Diamond','SJR','SJR Best Quartile','H index','Country','Region','Coverage','Categories','Areas']
 PROFILE={'normalizer_name':'venue-fixture','normalizer_version':'1','observation_schema_version':'1'}

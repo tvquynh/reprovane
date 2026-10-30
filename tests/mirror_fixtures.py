@@ -3,7 +3,7 @@ import hashlib,json,tempfile,unittest
 from pathlib import Path
 from urllib.parse import unquote
 from venue_fixtures import build_package
-from scholarflow.mirror import GitHubClient,MirrorCache,sync_scimago_from_github
+from reprovane.mirror import GitHubClient,MirrorCache,sync_scimago_from_github
 
 REPO='tvquynh/wosaide-journal-lists'
 A='a'*40

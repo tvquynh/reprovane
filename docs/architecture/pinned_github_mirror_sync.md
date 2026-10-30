@@ -8,7 +8,7 @@ integrate the current v4 CLI, infer source membership or perform screening.
 
 ```python
 from pathlib import Path
-from scholarflow.mirror import GitHubClient, sync_scimago_from_github, import_synced_scimago
+from reprovane.mirror import GitHubClient, sync_scimago_from_github, import_synced_scimago
 
 with GitHubClient(connect_timeout=10, read_timeout=60,
                   max_file_bytes=256*1024*1024, max_attempts=3) as client:

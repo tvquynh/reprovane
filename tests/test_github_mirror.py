@@ -3,8 +3,8 @@ from pathlib import Path
 from unittest.mock import patch
 import requests
 from mirror_fixtures import Session,Response,REPO,A,B,raw,api
-from scholarflow.mirror import (GitHubClient,MirrorCache,MirrorSyncError,GitHubFetchError,GitHubResolutionError,MirrorIntegrityError,MirrorCacheError)
-from scholarflow.mirror.models import repository,ref,safe_path,commit
+from reprovane.mirror import (GitHubClient,MirrorCache,MirrorSyncError,GitHubFetchError,GitHubResolutionError,MirrorIntegrityError,MirrorCacheError)
+from reprovane.mirror.models import repository,ref,safe_path,commit
 
 
 class TestGitHubTransport(unittest.TestCase):
@@ -115,7 +115,7 @@ class TestMirrorCache(unittest.TestCase):
         self.assertEqual(self.cache.put_bytes(self.data),self.digest); self.assertEqual(self.cache.object_path(self.digest).read_bytes(),self.data)
     def test_verified_existing_reuse(self):
         self.cache.put_bytes(self.data)
-        with patch('scholarflow.mirror.cache.os.replace',side_effect=AssertionError('no replacement')): self.assertEqual(self.cache.put_bytes(self.data),self.digest)
+        with patch('reprovane.mirror.cache.os.replace',side_effect=AssertionError('no replacement')): self.assertEqual(self.cache.put_bytes(self.data),self.digest)
     def test_corrupt_object_detected(self):
         self.cache.put_bytes(self.data); self.cache.object_path(self.digest).write_bytes(b'bad'); self.assertFalse(self.cache.verify_object(self.digest))
     def test_corrupt_object_recovered_verified(self):
@@ -129,7 +129,7 @@ class TestMirrorCache(unittest.TestCase):
             with self.assertRaises(MirrorIntegrityError): self.cache.promote_object(p,self.digest)
         self.assertFalse(self.cache.object_path(self.digest).exists())
     def test_failed_atomic_object_leaves_no_success(self):
-        with patch('scholarflow.mirror.cache.os.replace',side_effect=OSError()):
+        with patch('reprovane.mirror.cache.os.replace',side_effect=OSError()):
             with self.assertRaises(OSError): self.cache.put_bytes(self.data)
         self.assertFalse(self.cache.object_path(self.digest).exists()); self.assertFalse(list((self.cache.root/'objects'/'incoming').iterdir()))
     def test_namespace_repository_commit_and_subpath(self):
@@ -155,7 +155,7 @@ class TestMirrorCache(unittest.TestCase):
             with self.assertRaises(MirrorCacheError): self.cache.object_path(self.digest)
     def test_atomic_json_failure_retains_previous(self):
         target=self.cache.root/'state.json'; self.cache.atomic_json(target,{'old':True})
-        with patch('scholarflow.mirror.cache.os.replace',side_effect=OSError()):
+        with patch('reprovane.mirror.cache.os.replace',side_effect=OSError()):
             with self.assertRaises(MirrorSyncError): self.cache.atomic_json(target,{'old':False})
         self.assertEqual(self.cache.read_json(target),{'old':True})
     def test_completed_snapshot_promotion_rejected(self):

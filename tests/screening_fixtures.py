@@ -1,9 +1,9 @@
 """Synthetic keyless upstream state; no network or real human judgments."""
 import json,tempfile,unittest
 from pathlib import Path
-from scholarflow.core.db import Database
-from scholarflow.screening import ScreeningStore
-from scholarflow.openalex import OpenAlexClient
+from reprovane.core.db import Database
+from reprovane.screening import ScreeningStore
+from reprovane.openalex import OpenAlexClient
 from openalex_acquisition_fixtures import work,page,Session,Response
 
 

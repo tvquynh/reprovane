@@ -3,9 +3,9 @@ requires = ["setuptools>=77,<81", "wheel>=0.43,<1"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "scholarflow"
+name = "reprovane"
 dynamic = ["version"]
-description = "ScholarFlow — Reproducible literature discovery, screening, and evidence management."
+description = "Reprovane — Reproducible literature discovery, screening, and evidence management."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -13,21 +13,21 @@ license-files = ["LICENSE"]
 dependencies = ["requests>=2.31,<3", "pypdf>=6,<7"]
 
 [project.scripts]
-scholarflow = "scholarflow.__main__:main"
+reprovane = "reprovane.__main__:main"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["scholarflow*"]
+include = ["reprovane*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "scholarflow._version.__version__"}
+version = {attr = "reprovane._version.__version__"}
 
 [tool.setuptools.package-data]
-"scholarflow.core" = ["migrations/*.sql"]
+"reprovane.core" = ["migrations/*.sql"]
 
 [tool.setuptools.data-files]
-"share/doc/scholarflow" = ["MIGRATION_TO_SCHOLARFLOW.md", "OPERATIONS.md", "SECURITY.md", "ARCHITECTURE.md", "CHANGELOG.md", "LICENSE", "PROVENANCE.md"]
+"share/doc/reprovane" = ["README.md", "QUICKSTART_vi.md", "USER_GUIDE_vi.md", "MIGRATION_FROM_SCHOLARFLOW_1.md", "THIRD_PARTY_DATA.md", "MIGRATION_TO_SCHOLARFLOW.md", "OPERATIONS.md", "SECURITY.md", "ARCHITECTURE.md", "CHANGELOG.md", "LICENSE", "PROVENANCE.md"]
 
-"share/doc/scholarflow/architecture" = ["docs/architecture/*.md"]
+"share/doc/reprovane/architecture" = ["docs/architecture/*.md"]

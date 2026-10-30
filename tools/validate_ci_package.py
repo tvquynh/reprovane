@@ -22,20 +22,20 @@ def check_names(names):
         path = PurePosixPath(name)
         # Wheel data-files use <distribution>.data/data/share/doc/..., per wheel layout.
         parts = path.parts
-        if len(parts) > 5 and parts[0].endswith('.data') and parts[1:5] == ('data', 'share', 'doc', 'scholarflow'):
+        if len(parts) > 5 and parts[0].endswith('.data') and parts[1:5] == ('data', 'share', 'doc', 'reprovane'):
             parts = parts[2:]
         if path.is_absolute() or '..' in parts or forbidden.intersection(parts):
             raise AssertionError('Unexpected package content: '+name)
         if path.suffix.lower() in ('.db', '.sqlite', '.sqlite3', '.pdf', '.zip', '.pyc'):
             raise AssertionError('Unexpected package artifact: '+name)
-        if 'litintel' in path.parts:
-            raise AssertionError('Predecessor production namespace packaged')
+        if {'litintel', 'scholarflow'}.intersection(path.parts):
+            raise AssertionError('Historical production namespace packaged')
 
 
 def identity(text):
     metadata = Parser().parsestr(text)
-    assert metadata['Name'] == 'scholarflow'
-    assert metadata['Version'] == '1.0.0'
+    assert metadata['Name'] == 'reprovane'
+    assert metadata['Version'] == '2.0.0'
 
 
 def main():
@@ -49,8 +49,8 @@ def main():
         identity(archive.read(next(n for n in names if n.endswith('.dist-info/METADATA'))).decode())
         entry = configparser.ConfigParser()
         entry.read_string(archive.read(next(n for n in names if n.endswith('.dist-info/entry_points.txt'))).decode())
-        assert dict(entry['console_scripts']) == {'scholarflow': 'scholarflow.__main__:main'}
-        assert len([n for n in names if n.startswith('scholarflow/core/migrations/') and n.endswith('.sql')]) == 13
+        assert dict(entry['console_scripts']) == {'reprovane': 'reprovane.__main__:main'}
+        assert len([n for n in names if n.startswith('reprovane/core/migrations/') and n.endswith('.sql')]) == 13
     with tarfile.open(source) as archive:
         check_names(archive.getnames())
         metadata = archive.extractfile(source.name.removesuffix('.tar.gz')+'/PKG-INFO')
@@ -58,7 +58,7 @@ def main():
         identity(metadata.read().decode())
     for artifact in (wheel, source):
         print('SHA256', hashlib.sha256(artifact.read_bytes()).hexdigest(), artifact.name, flush=True)
-        with tempfile.TemporaryDirectory(prefix='scholarflow-package-') as folder:
+        with tempfile.TemporaryDirectory(prefix='reprovane-package-') as folder:
             base = Path(folder)
             venv.EnvBuilder(with_pip=True).create(base/'venv')
             scripts = base/'venv'/('Scripts' if os.name == 'nt' else 'bin')
@@ -72,13 +72,16 @@ def main():
             for key in ('OPENALEX_API_KEY', 'UNPAYWALL_EMAIL', 'GH_TOKEN', 'GITHUB_TOKEN'):
                 env.pop(key, None)
             code = (
-                'import importlib.metadata as m,json,pathlib,sys,scholarflow; '
-                "assert m.version('scholarflow')=='1.0.0'; "
-                'assert pathlib.Path(sys.prefix) in pathlib.Path(scholarflow.__file__).parents; '
-                "print(json.dumps({'name':m.metadata('scholarflow')['Name'],'version':m.version('scholarflow'),'noneditable':True,'outside_checkout':True}))"
+                'import importlib.metadata as m,importlib.util,json,pathlib,sys,reprovane; '
+                "assert m.version('reprovane')=='2.0.0'; "
+                'assert pathlib.Path(sys.prefix) in pathlib.Path(reprovane.__file__).parents; '
+                "assert importlib.util.find_spec('scholarflow') is None; "
+                "assert {e.name for e in m.distribution('reprovane').entry_points if e.group=='console_scripts'}=={'reprovane'}; "
+                "print(json.dumps({'name':m.metadata('reprovane')['Name'],'version':m.version('reprovane'),'noneditable':True,'outside_checkout':True}))"
             )
             subprocess.run([str(python), '-c', code], cwd=base, env=env, check=True)
-            cli = scripts/('scholarflow.exe' if os.name == 'nt' else 'scholarflow')
+            cli = scripts/('reprovane.exe' if os.name == 'nt' else 'reprovane')
+            assert not (scripts/('scholarflow.exe' if os.name == 'nt' else 'scholarflow')).exists()
             for args in (['--version'], ['--help'], ['doctor', '--offline']):
                 subprocess.run([str(cli), *args], cwd=base, env=env, check=True)
             print('Clean install PASS:', artifact.name, flush=True)

@@ -1,9 +1,9 @@
 """Executed synthetic comparisons with the unchanged legacy SourceIndex."""
 from venue_fixtures import VenueCase,issn,build_package
-from scholarflow.scimago import ScimagoRecord,SourceIndex,relevant_category_summary,enrich_records
-from scholarflow.venue_resolution.normalization import title_normalized
-from scholarflow.venue_resolution.projection import ScimagoVenueProjection
-from scholarflow.providers.scimago import import_scimago_source_snapshot
+from reprovane.scimago import ScimagoRecord,SourceIndex,relevant_category_summary,enrich_records
+from reprovane.venue_resolution.normalization import title_normalized
+from reprovane.venue_resolution.projection import ScimagoVenueProjection
+from reprovane.providers.scimago import import_scimago_source_snapshot
 
 
 def legacy_record(sid,title,identifier):

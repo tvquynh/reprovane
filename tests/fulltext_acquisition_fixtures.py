@@ -3,8 +3,8 @@ import copy,json
 from pathlib import Path
 from corpus_release_fixtures import CorpusCase
 from openalex_acquisition_fixtures import work
-from scholarflow.fulltext_acquisition import FullTextStore,DEFAULT_POLICY
-from scholarflow.fulltext_acquisition.transport import SafeTransport
+from reprovane.fulltext_acquisition import FullTextStore,DEFAULT_POLICY
+from reprovane.fulltext_acquisition.transport import SafeTransport
 
 FIX=Path(__file__).parent/'fixtures/fulltext_acquisition'
 PDF=(FIX/'tiny1.pdf').read_bytes()

@@ -1,9 +1,9 @@
-# Third-party data notes
+# Dữ liệu từ bên thứ ba
 
-This repository does not bundle the SCImago CSV datasets. At runtime it references the configured SCImago research mirror described by `manifest.json` and validates downloaded bytes with `SHA256SUMS.txt`.
+Reprovane xử lý metadata OpenAlex và các bằng chứng nguồn xuất bản được cấu hình, gồm SCImago, Scopus, Web of Science; fulltext có thể dùng Unpaywall khi được bật. Dự án không đóng gói bộ CSV SCImago hay PDF nghiên cứu thật trong wheel/sdist.
 
-The tool also uses OpenAlex API metadata.
+Người dùng cần ghi nhà cung cấp, snapshot/ref/commit, checksum và thời điểm của bằng chứng. Một checksum hợp lệ không biến một mirror thành nguồn có thẩm quyền và không cho phép tự suy diễn membership/ranking ngoài phạm vi dữ liệu. Bộ đồng bộ GitHub dùng nguồn ghim theo hợp đồng [pinned mirror](docs/architecture/pinned_github_mirror_sync.md); đọc `reprovane scimago --help` và `reprovane venue-data --help` cho CLI hiện hành.
 
-Users who redistribute datasets or derived datasets should independently review the applicable terms, licenses, attribution requirements, and redistribution restrictions of the original data providers. The tool's presence or a successful download is not a grant of redistribution rights.
+Trước khi phân phối lại dữ liệu, metadata, corpus hoặc PDF, người phụ trách phải xem điều khoản, giấy phép, nghĩa vụ ghi nguồn và giới hạn phân phối của từng nhà cung cấp/tác phẩm. Công cụ chạy được hoặc tải thành công không phải giấy phép phân phối. Nếu chưa rõ quyền, chỉ chia sẻ báo cáo/manifest phù hợp chính sách nhóm và nhờ người phụ trách kiểm tra. Không công khai toàn bộ workspace, key hoặc URL riêng tư.
 
-The default mirror (`https://scopus.cuatui.cloud/du-lieu/scimago/manifest.json`) is a community mirror maintained by the author on a best-effort basis, without an availability guarantee. Any mirror with the same `manifest.json` and `SHA256SUMS.txt` layout can be used through `scimago.manifest_url` in `config.json` or `--manifest-url`.
+Tài liệu dưới `docs/legacy/` mô tả các mirror/config/CLI của tiền nhiệm; không áp dụng tự động các cờ cũ vào Reprovane. [User Guide](USER_GUIDE_vi.md) giải thích sự khác biệt giữa bằng chứng nguồn, quyết định sàng lọc và artifact toàn văn.
