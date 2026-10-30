@@ -4,7 +4,7 @@
 
 Breaking identity rebrand: ScholarFlow → Reprovane. Distribution/import/CLI become `reprovane`; no old package shim or console alias is installed. Scientific semantics are unchanged; database schema remains 13 and SQL migrations 0001–0013 retain their exact bytes. Existing ScholarFlow 1.x schema13 workspaces remain compatible with unchanged database/CAS paths and the actual `.litintel-writer.lock` locator.
 
-Current beginner usage documentation and Quick Start are rewritten for Reprovane. This is PR preparation, not a tag, release, repository rename or PyPI/TestPyPI publication.
+Current beginner usage documentation and Quick Start are rewritten for Reprovane. The rebrand source is now on main and the repository has been renamed in place to tvquynh/reprovane. No v2.0.0 tag/release or PyPI/TestPyPI publication has occurred.
 
 ## 1.0.0
 

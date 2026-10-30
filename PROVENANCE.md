@@ -4,7 +4,7 @@ Lineage: **OpenAlex Literature Intelligence 4.1.0 → ScholarFlow 1.0.0 → Repr
 
 Reprovane 2.0.0 is the breaking distribution/import/CLI rebrand of the accepted ScholarFlow 1.0.0 source at commit `95120023dc738021963b8b1f78f81a7cfd6b2d4b`, tree `74d34d63588dfb05385c950f96c6e0d37decd3b7`. Scientific semantics, schema13, migration bytes, database/CAS paths and the actual `.litintel-writer.lock` locator remain unchanged. No `.reprovane-writer.lock` is introduced. Old documentation's `.scholarflow-writer.lock` wording did not match the shipped v1 implementation and is corrected here.
 
-This PR remains in `tvquynh/scholarflow`; the future in-place repository name is `tvquynh/reprovane`, only after separate acceptance/merge. No repository rename, v2 tag/release or registry publication is performed by this preparation. Historical v1 stable/RC tags, release IDs and assets remain intact. The predecessor remains archived and unchanged.
+The rebrand was merge-committed into main and the same GitHub repository was renamed in place to `tvquynh/reprovane`. Its canonical URL is https://github.com/tvquynh/reprovane. GitHub currently redirects the former `tvquynh/scholarflow` repository URL. Reprovane 2.0.0 source is on main; no v2.0.0 tag/release or PyPI/TestPyPI publication has occurred. Historical v1 stable/RC tags, release IDs and assets remain intact. The predecessor remains archived and unchanged.
 
 The ScholarFlow repository began as a separate bootstrap, not imported predecessor Git ancestry. Reprovane continues that same repository's history. The following historical bootstrap record is preserved as a dated account of that transition; statements about unpublished bootstrap activity describe that earlier milestone, not the present remote state.
 

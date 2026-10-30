@@ -14,7 +14,7 @@ Kết quả phải là `Python 3.11...` hoặc mới hơn. Nếu Windows mở Mi
 
 ## 2. Cài vào môi trường riêng
 
-Reprovane 2.0.0 hiện là **nhánh đang chờ xét duyệt**, chưa phải bản phát hành trên PyPI. Không chạy `pip install reprovane` để thực hiện hướng dẫn này. Xin tệp wheel của đúng nhánh từ người phụ trách hoặc làm theo mục “Tạo wheel từ mã nguồn” bên dưới. Đặt tệp `reprovane-2.0.0-py3-none-any.whl` trong thư mục Downloads và đối chiếu SHA256 với bản kê được cung cấp cùng tệp.
+Mã nguồn Reprovane 2.0.0 đã có trên **main** tại `tvquynh/reprovane`; chưa tạo tag/release `v2.0.0` và chưa phát hành trên PyPI/TestPyPI. Không chạy `pip install reprovane` để thực hiện hướng dẫn này. Xin tệp wheel từ commit đã kiểm tra trên main từ người phụ trách hoặc làm theo mục “Tạo wheel từ mã nguồn” bên dưới. Đặt tệp `reprovane-2.0.0-py3-none-any.whl` trong thư mục Downloads và đối chiếu SHA256 với bản kê được cung cấp cùng tệp.
 
 ```powershell
 Set-Location "$HOME\Downloads"
@@ -86,12 +86,12 @@ Tiếp tục bằng [Hướng dẫn sử dụng](USER_GUIDE_vi.md). Trước d�
 
 ## Tạo wheel từ mã nguồn khi người phụ trách chưa cung cấp tệp
 
-Cần Git đã cài. Các lệnh dưới đây tải **nhánh review** từ URL hiện có; kho GitHub chưa đổi tên. Không cần đăng nhập để đọc kho công khai.
+Cần Git đã cài. Các lệnh dưới đây tải **main** từ kho chính thức đã đổi tên tại chỗ. Không cần đăng nhập để đọc kho công khai; đây là cách build từ mã nguồn, không phải cài một bản v2 đã phát hành.
 
 ```powershell
 Set-Location "$HOME\Downloads"
-git clone --branch rebrand/reprovane-2.0.0 --single-branch https://github.com/tvquynh/scholarflow.git reprovane-review
-Set-Location .\reprovane-review
+git clone --branch main --single-branch https://github.com/tvquynh/reprovane.git reprovane-source
+Set-Location .\reprovane-source
 python -m venv .venv-build
 .\.venv-build\Scripts\python.exe -m pip install -r requirements-ci.txt
 .\.venv-build\Scripts\python.exe -m build
@@ -99,7 +99,7 @@ Copy-Item .\dist\reprovane-2.0.0-py3-none-any.whl "$HOME\Downloads\"
 Set-Location "$HOME\Downloads"
 ```
 
-Nếu thư mục `reprovane-review` đã có, không xóa dữ liệu để chạy lại: chọn tên thư mục mới. Nhánh có thể tiếp tục nhận sửa đổi khi review; khi cần tái lập, yêu cầu người phụ trách cung cấp commit SHA và SHA256 của wheel đã kiểm tra.
+Nếu thư mục `reprovane-source` đã có, không xóa dữ liệu để chạy lại: chọn tên thư mục mới. Main có thể tiếp tục nhận cập nhật; khi cần tái lập, yêu cầu người phụ trách cung cấp commit SHA và SHA256 của wheel đã kiểm tra.
 
 ## Trên Linux/macOS
 

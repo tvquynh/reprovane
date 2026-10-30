@@ -2,7 +2,7 @@
 
 Reprovane — Reproducible literature discovery, screening, and evidence management.
 
-**Reprovane 2.0.0 đang được chuẩn bị để review.** Đây là tên mới của ScholarFlow 1.0.0; thay đổi tên distribution, Python import và CLI là thay đổi không tương thích về giao diện. Schema cơ sở dữ liệu vẫn là **13**. Chưa phát hành Reprovane trên PyPI/TestPyPI. Kho hiện vẫn ở [tvquynh/scholarflow](https://github.com/tvquynh/scholarflow); kế hoạch đổi tên kho thành `tvquynh/reprovane` chỉ được thực hiện sau khi PR được chấp thuận và merge ở giai đoạn riêng.
+**Mã nguồn Reprovane 2.0.0 đã có trên `main`; chưa tạo tag/release `v2.0.0`.** Đây là tên mới của ScholarFlow 1.0.0; thay đổi tên distribution, Python import và CLI là thay đổi không tương thích về giao diện. Schema cơ sở dữ liệu vẫn là **13**. Chưa phát hành Reprovane trên PyPI/TestPyPI. Kho chính thức là [tvquynh/reprovane](https://github.com/tvquynh/reprovane), được đổi tên tại chỗ và giữ nguyên lịch sử. GitHub hiện chuyển hướng URL cũ `tvquynh/scholarflow` sang kho này; tên gói trên registry không có cơ chế chuyển hướng tương tự.
 
 ## Bắt đầu từ đâu?
 
@@ -20,7 +20,7 @@ Một bài tìm thấy chưa phải một bài được chọn. Xếp hạng SCI
 
 Chỉ bản `publishedVersion`/`acceptedVersion` đủ điều kiện theo chính sách mặc định mới được tự thu nhận; `submittedVersion`/không rõ phiên bản bị từ chối tự động. Thiếu PDF không loại bài khỏi tập nghiên cứu. Mục chưa giải quyết nằm trong hàng đợi thủ công; chức năng nhập PDF thủ công vào hệ thống chưa được triển khai.
 
-## Kiểm tra nhanh sau khi đã cài wheel đúng nhánh
+## Kiểm tra nhanh sau khi đã cài wheel từ nguồn đã kiểm tra
 
 Python 3.11+; thư viện runtime: `requests>=2.31,<3`, `pypdf>=6,<7`. Chạy trong môi trường đã cài Reprovane, hoặc dùng đường dẫn exe như Quick Start:
 

@@ -32,7 +32,7 @@ from . import __version__
 from .common import read_csv, read_json, read_jsonl, safe_str, sha256_file, write_csv
 
 USER_AGENT_TOKEN = "Reprovane"
-USER_AGENT = f"{USER_AGENT_TOKEN}/{__version__} (+https://github.com/tvquynh/scholarflow)"
+USER_AGENT = f"{USER_AGENT_TOKEN}/{__version__} (+https://github.com/tvquynh/reprovane)"
 DEFAULT_DELAY = 2.0          # seconds between two requests to the same host
 MAX_CRAWL_DELAY = 60.0       # a larger robots.txt Crawl-delay is capped here
 REQUEST_TIMEOUT = 60
