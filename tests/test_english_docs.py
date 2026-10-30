@@ -62,5 +62,18 @@ class TestEnglishDocumentation(unittest.TestCase):
         with patch('reprovane.operations.cli.workspace_lock',side_effect=AssertionError('Audit must not acquire a writer lock')),patch.object(Path,'mkdir',side_effect=AssertionError('Audit must not create a directory')):
             self.assertTrue(audit.validate_command(['discovery','create','--workspace','nonexistent-doc-audit-workspace','--project-revision','synthetic-id']))
 
+    def test_public_docs_are_release_state_neutral(self):
+        for path in audit.public_docs(ROOT):
+            name=path.relative_to(ROOT).as_posix()
+            self.assertEqual([r for r in audit.release_state_findings(path.read_text(encoding='utf-8'),name) if not r['historical']],[],name)
+
+    def test_release_state_detector_and_historical_boundary(self):
+        for phrase in ('2.0.1 awaits release','awaiting release','unpublished candidate','candidate version','not published yet','not released yet','has not been released','pending release','release pending','this branch prepares 2.0.1','review branch','will publish','will be published','PyPI still has 2.0.0','latest published version may still be 2.0.0','2.0.1 candidate','2.0.1 for this candidate','this PR prepares 2.0.1 without a new publication'):
+            self.assertTrue(audit.release_state_findings(phrase,'QUICKSTART.md'),phrase)
+        historical='## Historical ScholarFlow bootstrap record\nThis branch has not been released.'
+        self.assertTrue(all(r['historical'] for r in audit.release_state_findings(historical,'PROVENANCE.md')))
+        self.assertTrue(any(not r['historical'] for r in audit.release_state_findings('This branch prepares 2.0.1.\n'+historical,'PROVENANCE.md')))
+        self.assertEqual(audit.release_state_findings('This guide was validated with Reprovane 2.0.1. Install the latest version from PyPI.','QUICKSTART.md'),[])
+
 
 if __name__=='__main__':unittest.main()

@@ -9,10 +9,10 @@ and practice project, then reopen the project in a new terminal. Work through fo
 stages: Python, a private software environment, a data workspace, and a project.
 There is no fixed completion time; read each expected result before continuing.
 
-This guide describes 2.0.1. The install command gets the latest published version.
-While 2.0.1 awaits release, that may still be 2.0.0. Both support this offline practice
-path. An unpublished candidate is tested separately by maintainers, not assumed to
-be available on the Python Package Index (PyPI).
+This guide was validated with Reprovane 2.0.1. The command `pip install reprovane`
+installs the latest version available from the Python Package Index (PyPI). After
+installation, use `reprovane --version` to see the version installed on your computer.
+A later compatible release may display a newer version than the examples in this guide.
 
 ## Words you will see
 
@@ -95,7 +95,8 @@ $py = ".\.venv-reprovane\Scripts\python.exe"
 **What you should see:** successful installation (or already installed), a version
 number, then JSON. `pip` is Python's package installer. Look for `offline: true`,
 `python_supported: true` and dependencies marked `true`. Missing online credentials
-are normal. The guide's candidate version is `2.0.1`; see the publication note above.
+are normal. You should see the installed Reprovane version. This guide was validated
+with `2.0.1`.
 No environment activation or PowerShell execution-policy change is required.
 
 The `&` runs the program named by a variable. If Application Control blocks the

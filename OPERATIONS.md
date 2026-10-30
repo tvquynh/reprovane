@@ -1,8 +1,8 @@
 # Operating Reprovane safely
 
 Use [Quick Start](QUICKSTART.md) for installation and [User Guide](USER_GUIDE.md) for
-review work. Reprovane 2.0.0 is published; this branch prepares 2.0.1 without publishing
-it. Installation version and data-format version are different concepts.
+review work. Reprovane 2.0.0 is published. This guide was validated with Reprovane
+2.0.1. Installation version and data-format version are different concepts.
 
 ## Find the right workspace
 

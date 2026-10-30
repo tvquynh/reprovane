@@ -5,7 +5,7 @@ This guide is for existing ScholarFlow users. New users should start with
 
 The distribution `scholarflow`, command `scholarflow` and `import scholarflow` were
 replaced by `reprovane`, `reprovane` and `import reprovane` in 2.0.0. No compatibility
-package or old-command alias is installed. The 2.0.1 candidate keeps that identity.
+package or old-command alias is installed. Reprovane 2.0.1 keeps that identity.
 Schema remains 13; no migration 0014 is needed for the rename or documentation update.
 
 ## Before switching
@@ -34,7 +34,7 @@ $ws = "$HOME\Documents\existing-review-copy"
 & $rp verify --offline --workspace "$ws"
 ```
 
-Expect the installed Reprovane version (2.0.1 for this candidate), schema 13 and no
+Expect the installed Reprovane version (2.0.1 in this guide), schema 13 and no
 pending migrations/foreign-key violations. On a launcher-restricted enterprise
 host, use `& $py -m reprovane` instead of `& $rp`, as explained in Quick Start.
 Checks use a temporary database snapshot, not a scientific-data conversion.
@@ -60,4 +60,5 @@ to an old environment, stop the new writer and use a verified compatible backup;
 do not edit migration history. The canonical repository is
 [tvquynh/reprovane](https://github.com/tvquynh/reprovane). GitHub's old repository URL
 redirect does not redirect distribution/import/CLI names. Reprovane 2.0.0 is already
-published; this PR prepares 2.0.1 without a new publication.
+published. Reprovane 2.0.1 preserves the workspace format and compatibility paths
+described in this guide.

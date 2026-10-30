@@ -17,6 +17,34 @@ DIACRITICS = re.compile(r'[\u00c0-\u00ff\u0102\u0103\u0110\u0111\u0128\u0129\u01
 PHRASES = ('huong dan','bat dau','cai dat','chuan bi','nguoi dung','du lieu','bao mat',
            'van hanh','ky vong','neu ban','loi khi','chay lenh','tao thu muc','de tai',
            'nghien cuu','toan van')
+RELEASE_STATE_PATTERNS = (
+    r'\bawait(?:s|ing)?\s+release\b', r'\bunpublished\s+candidate\b',
+    r'\bcandidate\s+version\b', r'\bnot\s+(?:published|released)\s+yet\b',
+    r'\bhas\s+not\s+been\s+(?:published|released)\b',
+    r'\b(?:pending\s+release|release\s+pending)\b', r'\bthis\s+branch\b',
+    r'\breview\s+branch\b', r'\bprepares?\s+2\.0\.1\b',
+    r'\bwill\s+(?:be\s+)?publish(?:ed)?\b', r'\bPyPI\s+still\s+has\s+2\.0\.0\b',
+    r'\blatest\s+published\s+version\s+may\s+still\s+be\s+2\.0\.0\b',
+    r'\b2\.0\.1\b.{0,40}\bcandidate\b|\bcandidate\b.{0,40}\b2\.0\.1\b',
+    r'\bthis\s+PR\s+prepares?\b', r'\bwithout\s+(?:a\s+new\s+publication|publishing\s+it)\b',
+    r'\bdoes\s+not\s+publish\s+it\b', r'\bpublication\s+note\s+above\b',
+)
+
+
+def release_state_findings(text, path=''):
+    """Classify explicit past records; never exempt current guidance by keyword alone."""
+    cleaned=text.replace('`',' ').replace('*',' ')
+    found=[]
+    for pattern in RELEASE_STATE_PATTERNS:
+        for match in re.finditer(pattern,cleaned,re.I|re.S):
+            before=text[:match.start()];name=Path(path).name
+            historical=path.replace('\\','/').startswith('docs/legacy/') or name=='MIGRATION_TO_SCHOLARFLOW.md'
+            if name=='PROVENANCE.md':historical='## Historical ScholarFlow bootstrap record' in before
+            if name=='CHANGELOG.md':
+                sections=re.findall(r'^## (.+)$',before,re.M)
+                historical=bool(sections and sections[-1].strip() in ('1.0.0','1.0.0-rc1'))
+            found.append(dict(line=before.count('\n')+1,phrase=match.group(),historical=historical))
+    return sorted(found,key=lambda row:(row['line'],row['phrase']))
 
 
 def public_docs(root=ROOT):
@@ -100,12 +128,13 @@ def validate_command(args):
 def main():
     docs=public_docs();language={p.relative_to(ROOT).as_posix():language_findings(p.read_text(encoding='utf-8')) for p in docs}
     broken={p.relative_to(ROOT).as_posix():link_findings(p) for p in docs if p.suffix=='.md'}
+    transient={p.relative_to(ROOT).as_posix():[r for r in release_state_findings(p.read_text(encoding='utf-8'),p.relative_to(ROOT).as_posix()) if not r['historical']] for p in docs}
     commands=[]
     for name in ['README.md','QUICKSTART.md','USER_GUIDE.md','OPERATIONS.md','MIGRATION_FROM_SCHOLARFLOW_1.md']:
         for shell,text,args in cli_commands(ROOT/name):commands.append(dict(document=name,shell=shell,command=text,validated=validate_command(args),source='real argparse parser; dispatch intercepted'))
     import json
-    print(json.dumps(dict(documents=len(docs),language={k:v for k,v in language.items() if v},broken={k:v for k,v in broken.items() if v},commands=commands),indent=2))
-    return int(any(language.values()) or any(broken.values()) or any(not c['validated'] for c in commands))
+    print(json.dumps(dict(documents=len(docs),language={k:v for k,v in language.items() if v},broken={k:v for k,v in broken.items() if v},transient={k:v for k,v in transient.items() if v},commands=commands),indent=2))
+    return int(any(language.values()) or any(broken.values()) or any(transient.values()) or any(not c['validated'] for c in commands))
 
 
 if __name__=='__main__':raise SystemExit(main())
