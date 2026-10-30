@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import tomllib
 import unittest
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 def load(name):
@@ -56,6 +57,10 @@ class TestEnglishDocumentation(unittest.TestCase):
 
     def test_beginner_documented_walkthrough(self):
         self.assertEqual(load('beginner_smoke').walkthrough()['status'],'PASS')
+
+    def test_parser_audit_never_opens_workspace(self):
+        with patch('reprovane.operations.cli.workspace_lock',side_effect=AssertionError('Audit must not acquire a writer lock')),patch.object(Path,'mkdir',side_effect=AssertionError('Audit must not create a directory')):
+            self.assertTrue(audit.validate_command(['discovery','create','--workspace','nonexistent-doc-audit-workspace','--project-revision','synthetic-id']))
 
 
 if __name__=='__main__':unittest.main()

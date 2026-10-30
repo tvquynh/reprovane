@@ -79,7 +79,12 @@ def cli_commands(path):
 
 def validate_command(args):
     """Parse the real CLI but stop before dispatch, file I/O or network operations."""
-    from reprovane.__main__ import main
+    from reprovane.__main__ import main, ROUTES
+    args=list(args)
+    if args and args[0] in ROUTES:
+        module=importlib.import_module('reprovane.'+ROUTES[args[0]]+'.__main__')
+        main=module._unmanaged_main
+        args=args[1:]
     class Parsed(Exception):pass
     original=argparse.ArgumentParser.parse_args
     def parse(parser,args=None,namespace=None):
