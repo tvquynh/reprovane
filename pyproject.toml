@@ -12,6 +12,12 @@ license = "MIT"
 license-files = ["LICENSE"]
 dependencies = ["requests>=2.31,<3", "pypdf>=6,<7"]
 
+[project.urls]
+Homepage = "https://github.com/tvquynh/reprovane"
+Repository = "https://github.com/tvquynh/reprovane"
+Issues = "https://github.com/tvquynh/reprovane/issues"
+Documentation = "https://github.com/tvquynh/reprovane#documentation"
+
 [project.scripts]
 reprovane = "reprovane.__main__:main"
 
