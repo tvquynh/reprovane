@@ -7,7 +7,7 @@ discovery run, graph, screening integration, release workflow or AI here.
 
 ## Workspace and API
 
-An explicit `pathlib.Path` workspace owns `db/scholarflow.sqlite` (plus SQLite WAL/SHM)
+An explicit `pathlib.Path` workspace owns `db/reprovane.sqlite` (plus SQLite WAL/SHM)
 and `raw/sha256/<first-two-hex>/<64-lowercase-hex>`. Bytes have no URL-derived
 filename. Workspace paths are resolved; artifact hashes and symlink escapes are
 checked. Local workspace directories must be trusted against concurrent hostile
@@ -15,8 +15,8 @@ filesystem modifications. Standard-library symlink checks are not a sandbox.
 
 ```python
 from pathlib import Path
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
 
 with Database(Path("workspace")) as db:
     service = Foundation(db)

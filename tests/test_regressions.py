@@ -1,4 +1,4 @@
-"""Inherited scientific regression tests for ScholarFlow (stdlib unittest only).
+"""Inherited scientific regression tests for Reprovane (stdlib unittest only).
 
 Run from the project root:
     python -m unittest discover -s tests -v
@@ -26,14 +26,14 @@ ROOT = Path(__file__).resolve().parents[1]
 LEGACY_REFERENCE = ROOT / "tests" / "legacy_reference"
 sys.path.insert(0, str(ROOT))
 
-from scholarflow import openalex, scimago_repo  # noqa: E402
-from scholarflow.common import normalize_issn, normalize_quartile, read_csv, redact_secrets, split_issns  # noqa: E402
-from scholarflow.pipeline import (  # noqa: E402
+from reprovane import openalex, scimago_repo  # noqa: E402
+from reprovane.common import normalize_issn, normalize_quartile, read_csv, redact_secrets, split_issns  # noqa: E402
+from reprovane.pipeline import (  # noqa: E402
     FUTURE_YEAR_QUARTILE_REASON, admission_summary, apply_main_policy, build_summary, enrich_existing_file,
     quartile_filter_diagnostics, source_audit,
 )
-from scholarflow.scimago import enrich_records, relevant_category_summary, source_history  # noqa: E402
-from scholarflow.venues import VenueTierError, VenueTiers  # noqa: E402
+from reprovane.scimago import enrich_records, relevant_category_summary, source_history  # noqa: E402
+from reprovane.venues import VenueTierError, VenueTiers  # noqa: E402
 
 openalex.time.sleep = lambda *_: None
 scimago_repo.time.sleep = lambda *_: None
@@ -761,7 +761,7 @@ class TestIssnConflict(RepoCase):
 
     def test_no_personal_email_or_key_in_source(self):
         import re
-        sources = [LEGACY_REFERENCE / "literature_pipeline.py", LEGACY_REFERENCE / "config.example.json", *sorted((ROOT / "scholarflow").glob("*.py"))]
+        sources = [LEGACY_REFERENCE / "literature_pipeline.py", LEGACY_REFERENCE / "config.example.json", *sorted((ROOT / "reprovane").glob("*.py"))]
         emails = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
         for path in sources:
             text = path.read_text(encoding="utf-8")
@@ -774,13 +774,13 @@ _COPY_COUNTER = [0]
 
 
 def make_project_copy(base: Path, config=None) -> Path:
-    """Fresh copy of the CLI (script + scholarflow, never an existing config.json); optional config.json."""
+    """Fresh copy of the CLI (script + reprovane, never an existing config.json); optional config.json."""
     import shutil
     proj = base / f"proj{_COPY_COUNTER[0]}"
     _COPY_COUNTER[0] += 1
     proj.mkdir(parents=True)
     shutil.copy2(LEGACY_REFERENCE / "literature_pipeline.py", proj / "literature_pipeline.py")
-    shutil.copytree(ROOT / "scholarflow", proj / "scholarflow", ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(ROOT / "reprovane", proj / "reprovane", ignore=shutil.ignore_patterns("__pycache__"))
     if config is not None:
         text = config if isinstance(config, str) else json.dumps(config)
         (proj / "config.json").write_text(text, encoding="utf-8")
@@ -829,7 +829,7 @@ class TestConfig(unittest.TestCase):
     def parsed(self, proj, argv):
         cli = load_cli(proj)
         args = cli.build_parser().parse_args(argv)
-        from scholarflow.config import load_config
+        from reprovane.config import load_config
         config = load_config(args.config, proj)
         sources = cli.resolve_settings(args, config)
         return args, sources
@@ -933,7 +933,7 @@ class TestConfig(unittest.TestCase):
         self.assertIn("Config file not found", err)
 
     def test_example_config_is_valid_and_has_no_key(self):
-        from scholarflow.config import load_config
+        from reprovane.config import load_config
         example = json.loads((LEGACY_REFERENCE / "config.example.json").read_text(encoding="utf-8"))
         self.assertEqual(example["openalex"]["api_key"], "")
         proj = make_project_copy(self.base, (LEGACY_REFERENCE / "config.example.json").read_text(encoding="utf-8"))
@@ -1052,7 +1052,7 @@ class TestFetchOpenAccess(unittest.TestCase):
         return path
 
     def fetch(self, path, **kw):
-        from scholarflow.fulltext import fetch_open_access
+        from reprovane.fulltext import fetch_open_access
         kw.setdefault("delay", 0)
         with contextlib.redirect_stdout(io.StringIO()):
             return fetch_open_access(path, self.out, verbose=True, **kw)
@@ -1097,7 +1097,7 @@ class TestFetchOpenAccess(unittest.TestCase):
         ])
 
     def test_bot_checked_hosts_are_never_requested_again(self):
-        from scholarflow.fulltext import USER_AGENT, host_of
+        from reprovane.fulltext import USER_AGENT, host_of
         with self.hosts() as ((a, ha), (b, hb), (c, hc)):
             path = self.standard_corpus(a, b, c)
             summary = self.fetch(path)
@@ -1158,7 +1158,7 @@ class TestFetchOpenAccess(unittest.TestCase):
             self.assertEqual(hb.hits.count("/b3.pdf"), 0)              # a blocked host stays untouched
 
     def test_bot_check_detection(self):
-        from scholarflow.fulltext import detect_bot_check
+        from reprovane.fulltext import detect_bot_check
         big = b" " * 30000
         self.assertEqual(detect_bot_check(200, {}, b"<title>Article</title><script src='https://js.captcha-delivery.com/t.js'>" + big), "")
         self.assertEqual(detect_bot_check(200, {}, b"<title>Breaking text CAPTCHA with deep learning</title>"), "")
@@ -1176,7 +1176,7 @@ class TestFetchOpenAccess(unittest.TestCase):
         self.assertEqual(detect_bot_check(429, {}, b"slow down"), "")    # a rate limit, handled separately
 
     def test_robots_rules_follow_rfc_9309(self):
-        from scholarflow.fulltext import Robots
+        from reprovane.fulltext import Robots
         rules = Robots("User-agent: *\nAllow: /\nDisallow: /private/\n")
         self.assertFalse(rules.allowed("http://h/private/x.pdf"))
         self.assertTrue(rules.allowed("http://h/public/x.pdf"))
@@ -1184,14 +1184,14 @@ class TestFetchOpenAccess(unittest.TestCase):
         self.assertFalse(rules.allowed("http://h/a/b.pdf"))
         self.assertTrue(rules.allowed("http://h/a/b.pdf?download=1"))
         self.assertTrue(rules.allowed("http://h/a/b.html"))
-        rules = Robots("User-agent: ScholarFlow\nDisallow: /\n\nUser-agent: *\nAllow: /\nCrawl-delay: 7\n")
+        rules = Robots("User-agent: Reprovane\nDisallow: /\n\nUser-agent: *\nAllow: /\nCrawl-delay: 7\n")
         self.assertFalse(rules.allowed("http://h/x.pdf"))
         self.assertTrue(rules.allowed("http://h/robots.txt"))
         self.assertTrue(Robots("User-agent: *\nDisallow:\n").allowed("http://h/x.pdf"))
         self.assertEqual(Robots("User-agent: *\nCrawl-delay: 5\n").crawl_delay(), 5.0)
 
     def test_robots_redirect_unreachable_and_crawl_delay(self):
-        from scholarflow import fulltext
+        from reprovane import fulltext
         with route_server({}) as (d, hd), route_server({}) as (e, he):
             hd.routes.update({
                 "/robots.txt": (301, {"Location": "/robots-real.txt"}, b""),
@@ -1216,8 +1216,8 @@ class TestFetchOpenAccess(unittest.TestCase):
             self.assertEqual(self.blocked(), {})                       # nothing here is a bot check
 
     def test_redirect_chains_and_rights_reservation(self):
-        from scholarflow import fulltext
-        from scholarflow.fulltext import host_of
+        from reprovane import fulltext
+        from reprovane.fulltext import host_of
         with route_server({}) as (f, hf), route_server({}) as (g, hg), route_server({}) as (h, hh), \
                 route_server({}) as (r, hr), route_server({}) as (q, hq):
             hf.routes.update({"/gate": TITLE_CHALLENGE})
@@ -1251,8 +1251,8 @@ class TestFetchOpenAccess(unittest.TestCase):
     def test_resolver_redirect_to_a_bot_check_does_not_pause_the_resolver(self):
         # Found in the first corpus run: a DOI that led to one publisher's bot check paused doi.org,
         # so every later DOI link of that run was skipped, including those of other publishers.
-        from scholarflow import fulltext
-        from scholarflow.fulltext import host_of
+        from reprovane import fulltext
+        from reprovane.fulltext import host_of
         with route_server({}) as (r, hr), route_server({}) as (p, hp), route_server({}) as (o, ho):
             hp.routes.update({"/gate": TITLE_CHALLENGE, "/other.pdf": (200, {}, PDF_BYTES)})
             ho.routes.update({"/ok.pdf": (200, {}, PDF_BYTES)})
@@ -1303,7 +1303,7 @@ class TestFetchOpenAccess(unittest.TestCase):
             self.assertEqual(hs.hits, ["/robots.txt", "/a.pdf"])     # lower-case Retry-After still pauses the host
 
     def test_interruption_keeps_blocked_hosts_and_state(self):
-        from scholarflow.fulltext import Fetcher, host_of
+        from reprovane.fulltext import Fetcher, host_of
         with self.hosts() as ((a, ha), (b, hb), (c, hc)):
             path = self.standard_corpus(a, b, c)
             original = Fetcher.fetch
@@ -1361,7 +1361,7 @@ class TestFetchOpenAccess(unittest.TestCase):
                 self.assertEqual(self.blocked(), {})
 
     def test_manual_list_is_escaped_and_keeps_rows_without_identifier(self):
-        from scholarflow.fulltext import _say, host_of
+        from reprovane.fulltext import _say, host_of
         rows = [oa_row("W1", "javascript:alert(1)", landing="javascript:alert(2)"),
                 oa_row("", "", is_oa=False)]
         rows[0]["title"] = "<script>alert(1)</script>\nsecond line"
@@ -1780,7 +1780,7 @@ class TestAdmissionAndPreprints(RepoCase):
         self.write_list()
         proj = make_project_copy(tmp, {"screening": {"venue_tiers": "../admit.tsv", "admit_tiers": ["A", "B"]}})
         cli = load_cli(proj)
-        from scholarflow.config import load_config
+        from reprovane.config import load_config
         config = load_config(None, proj)
         for argv, expected, source in ((["enrich", "--input", "x", "--output", "y"], ["A", "B"], "config.json"),
                                        (["enrich", "--input", "x", "--output", "y", "--admit-tier", "B"], ["B"], "cli"),

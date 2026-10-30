@@ -3,9 +3,9 @@ from pathlib import Path
 from unittest.mock import patch
 from mirror_fixtures import SyncCase,REPO,A,B,C,raw,Response
 from venue_fixtures import checksums
-from scholarflow.mirror import MirrorSyncError,MirrorIntegrityError,MirrorOfflineError,MirrorStateError,import_synced_scimago
-from scholarflow.providers.scimago import validate_local_package,parse_scimago_manifest_bytes,parse_scimago_checksums_bytes,declared_scimago_files
-from scholarflow.core.db import Database
+from reprovane.mirror import MirrorSyncError,MirrorIntegrityError,MirrorOfflineError,MirrorStateError,import_synced_scimago
+from reprovane.providers.scimago import validate_local_package,parse_scimago_manifest_bytes,parse_scimago_checksums_bytes,declared_scimago_files
+from reprovane.core.db import Database
 
 
 class TestScimagoGitHubSync(SyncCase):
@@ -104,7 +104,7 @@ class TestScimagoGitHubSync(SyncCase):
     def test_hash_mismatch_retains_state(self): self.failure_at('SCIMAGO/scimagojr-2031.csv',wrong=True)
     def test_failed_stage04_validation_retains_state(self):
         a=self.sync(); old=self.state(); self.seed(B,years=(2022,2023,2031))
-        with patch('scholarflow.mirror.scimago_sync.validate_local_package',side_effect=MirrorIntegrityError('injected validation failure')):
+        with patch('reprovane.mirror.scimago_sync.validate_local_package',side_effect=MirrorIntegrityError('injected validation failure')):
             with self.assertRaises(MirrorIntegrityError): self.sync()
         self.assertEqual(self.state(),old); self.assertFalse(self.cache.snapshot_path(REPO,B,'SCIMAGO').exists())
     def test_object_orphans_reusable_after_failure(self):
@@ -113,12 +113,12 @@ class TestScimagoGitHubSync(SyncCase):
         del self.session.routes[raw(A,'SCIMAGO/scimagojr-2031.csv')]; n=len(self.session.calls); r=self.sync(); self.assertEqual(self.data_calls(n),[raw(A,'SCIMAGO/scimagojr-2031.csv')]); self.assertEqual(len(r.reused_files),2)
     def test_state_write_failure_rolls_back_new_promotion(self):
         a=self.sync(); state=self.state(); self.seed(B,years=(2022,2023,2031))
-        with patch('scholarflow.mirror.scimago_sync._write_state',side_effect=MirrorStateError('injected state failure')):
+        with patch('reprovane.mirror.scimago_sync._write_state',side_effect=MirrorStateError('injected state failure')):
             with self.assertRaises(MirrorStateError): self.sync()
         self.assertEqual(self.state(),state); self.assertFalse(self.cache.snapshot_path(REPO,B,'SCIMAGO').exists()); self.assertTrue(Path(a.snapshot_directory).is_dir())
     def test_no_partial_staging_after_failure(self):
         final=self.cache.snapshot_path(REPO,A,'SCIMAGO')
-        with patch('scholarflow.mirror.cache.MirrorCache.materialize_file',side_effect=MirrorIntegrityError('injected copy failure')):
+        with patch('reprovane.mirror.cache.MirrorCache.materialize_file',side_effect=MirrorIntegrityError('injected copy failure')):
             with self.assertRaises(MirrorIntegrityError): self.sync()
         self.assertFalse(final.exists()); self.assertEqual(list(final.parent.glob('.snapshot-*')),[]); self.assertFalse(self.cache.state_path(REPO,'SCIMAGO').exists())
     def test_online_corrupt_object_redownload(self):
@@ -135,9 +135,9 @@ class TestScimagoGitHubSync(SyncCase):
         a=self.sync(); self.session.calls=[]
         r=self.sync(requested_ref=A,offline=True); self.assertEqual(r.status,'OFFLINE_REUSED'); self.assertEqual(r.resolved_commit_sha,A); self.assertFalse(self.session.calls)
     def test_offline_does_not_create_network_client(self):
-        from scholarflow.mirror import sync_scimago_from_github
+        from reprovane.mirror import sync_scimago_from_github
         self.sync()
-        with patch('scholarflow.mirror.scimago_sync.GitHubClient',side_effect=AssertionError('network client forbidden')):
+        with patch('reprovane.mirror.scimago_sync.GitHubClient',side_effect=AssertionError('network client forbidden')):
             self.assertEqual(sync_scimago_from_github(self.workspace,offline=True).status,'OFFLINE_REUSED')
     def test_offline_missing_exact_fails(self):
         with self.assertRaises(MirrorOfflineError): self.sync(requested_ref=B,offline=True)
@@ -195,7 +195,7 @@ class TestScimagoGitHubSync(SyncCase):
             with self.assertRaises(MirrorSyncError): self.sync(repository_path=value)
         self.assertFalse(self.session.calls)
     def test_no_git_or_semantic_scope_creep(self):
-        root=Path(__file__).parents[1]/'scholarflow'/'mirror'
+        root=Path(__file__).parents[1]/'reprovane'/'mirror'
         for p in root.glob('*.py'):
             tree=ast.parse(p.read_text())
             for n in ast.walk(tree):

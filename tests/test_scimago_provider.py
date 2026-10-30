@@ -2,9 +2,9 @@ import ast,csv,json,hashlib
 from pathlib import Path
 from unittest.mock import patch
 from venue_fixtures import VenueCase,build_package,checksums,issn,HEADER
-from scholarflow.core import ValidationError,ArtifactIntegrityError
-from scholarflow.providers.scimago import validate_local_package,import_scimago_source_snapshot,import_scimago_apc_snapshot,NORMALIZER
-from scholarflow.venue_resolution.projection import ScimagoVenueProjection
+from reprovane.core import ValidationError,ArtifactIntegrityError
+from reprovane.providers.scimago import validate_local_package,import_scimago_source_snapshot,import_scimago_apc_snapshot,NORMALIZER
+from reprovane.venue_resolution.projection import ScimagoVenueProjection
 
 
 class TestScimagoProvider(VenueCase):
@@ -133,12 +133,12 @@ class TestScimagoProvider(VenueCase):
         old=self.imported(); build_package(self.pkg,years=(2023,2031),rows={2023:[{'Sourceid':'100','Title':'Alpha Journal'}],2031:[{'Sourceid':'300','Title':'Future venue'}]}); future=import_scimago_source_snapshot(self.db,self.pkg,2031)
         rid=self.ready([r['provider_record_id'] for result in [old,future] for r in result['provider_records']],True); p=ScimagoVenueProjection(self.store); nodes=self.store.list_provider_nodes(rid); entities={n['provider_native_id']:next(m['venue_entity_id'] for m in self.store.list_entity_members(rid) if m['provider_node_id']==n['provider_node_id']) for n in nodes}; self.assertEqual(p.global_latest_snapshot_year(rid),2031); self.assertEqual(p.scimago_presence_status(rid,entities['100']),'SCIMAGO_HISTORICAL_ONLY'); self.assertTrue(p.scimago_metrics_for_year(rid,entities['300'],2031))
     def test_no_network_or_year_constants(self):
-        source=(Path(__file__).parents[1]/'scholarflow/providers/scimago.py').read_text(); tree=ast.parse(source)
+        source=(Path(__file__).parents[1]/'reprovane/providers/scimago.py').read_text(); tree=ast.parse(source)
         for n in ast.walk(tree):
             if isinstance(n,ast.Import): self.assertFalse({a.name.split('.')[0] for a in n.names}&{'requests','http','urllib3','subprocess','openai'})
             if isinstance(n,ast.Constant) and type(n.value) is int: self.assertNotIn(n.value,[2010,2025,16,17])
     def test_manifest_iterator_discovers_years_and_optional_apc(self):
-        from scholarflow.providers.scimago import iter_import_scimago_package
+        from reprovane.providers.scimago import iter_import_scimago_package
         build_package(self.pkg,years=(2022,2031),apc=True)
         rows=list(iter_import_scimago_package(self.db,self.pkg)); self.assertEqual([(r['snapshot']['dataset'],r['snapshot']['upstream_release']) for r in rows],[('source_list','2022'),('source_list','2031'),('journal_value','2022')])
     def test_known_profile_short_rows_and_lowercase_quartile(self):

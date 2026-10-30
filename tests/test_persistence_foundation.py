@@ -8,13 +8,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scholarflow.core import (ArtifactIntegrityError, FoundationError, ImmutabilityError, MigrationDriftError,
+from reprovane.core import (ArtifactIntegrityError, FoundationError, ImmutabilityError, MigrationDriftError,
                            MigrationError, SnapshotSealedError, ValidationError)
-from scholarflow.core.artifacts import StoredArtifact
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.core.provenance import SENSITIVE_QUERY_KEYS, canonical_json, sanitize_locator
+from reprovane.core.artifacts import StoredArtifact
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.core.provenance import SENSITIVE_QUERY_KEYS, canonical_json, sanitize_locator
 
 
 class FoundationCase(unittest.TestCase):

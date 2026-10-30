@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from screening_fixtures import ScreeningCase
 from openalex_acquisition_fixtures import work
-from scholarflow.corpus_release import CorpusReleaseStore
+from reprovane.corpus_release import CorpusReleaseStore
 
 
 def plan(**changes):

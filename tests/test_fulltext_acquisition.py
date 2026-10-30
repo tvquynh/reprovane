@@ -2,15 +2,15 @@ import copy,hashlib,io,json,shutil,socket,unittest
 from pathlib import Path
 from unittest.mock import patch
 from fulltext_acquisition_fixtures import FullCase,policy,location,PDF,PDF2,Response,Opener,public_dns,FIX
-from scholarflow.fulltext_acquisition import FullTextPolicy,FullTextStore,verify_export
-from scholarflow.fulltext_acquisition.candidates import location_routes,make_candidates
-from scholarflow.fulltext_acquisition.safety import normalize_url,sanitize_url,public_address,validate_pdf
-from scholarflow.fulltext_acquisition.transport import SafeTransport,FetchError
-from scholarflow.fulltext_acquisition.__main__ import main
-from scholarflow.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.migrations import MIGRATION_DIR,apply_migrations
-from scholarflow.corpus_release.model import digest
+from reprovane.fulltext_acquisition import FullTextPolicy,FullTextStore,verify_export
+from reprovane.fulltext_acquisition.candidates import location_routes,make_candidates
+from reprovane.fulltext_acquisition.safety import normalize_url,sanitize_url,public_address,validate_pdf
+from reprovane.fulltext_acquisition.transport import SafeTransport,FetchError
+from reprovane.fulltext_acquisition.__main__ import main
+from reprovane.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.migrations import MIGRATION_DIR,apply_migrations
+from reprovane.corpus_release.model import digest
 from pypdf import PdfWriter
 
 
@@ -224,7 +224,7 @@ class TestRuns(FullCase):
     def test_sealed_replay(self): self.completed();before=self.full.get(self.fid);self.full.finalize(self.fid);self.assertEqual(before,self.full.get(self.fid))
     def test_offline_verification(self):
         self.completed()
-        with patch('socket.socket.connect',side_effect=AssertionError('network forbidden')),patch('scholarflow.fulltext_acquisition.transport.runtime_credentials',side_effect=AssertionError('credentials forbidden')):self.assertTrue(self.full.verify(self.fid)['verified'])
+        with patch('socket.socket.connect',side_effect=AssertionError('network forbidden')),patch('reprovane.fulltext_acquisition.transport.runtime_credentials',side_effect=AssertionError('credentials forbidden')):self.assertTrue(self.full.verify(self.fid)['verified'])
     def test_schema12_idempotent(self): self.setup_run();FullTextStore(self.db);self.assertEqual(self.db.execute('PRAGMA user_version').fetchone()[0],12)
     def test_sql_status_immutable(self):
         self.completed()
@@ -247,7 +247,7 @@ class TestRuns(FullCase):
     def test_export_portable(self): self.completed();result=self.full.export(self.fid,self.root/'export');self.assertTrue(result['verified']);self.assertEqual(result['item_count'],3)
     def test_portable_no_database(self):
         self.completed();self.full.export(self.fid,self.root/'export')
-        with patch('scholarflow.core.db.Database',side_effect=AssertionError('no DB')):self.assertTrue(verify_export(self.root/'export')['verified'])
+        with patch('reprovane.core.db.Database',side_effect=AssertionError('no DB')):self.assertTrue(verify_export(self.root/'export')['verified'])
     def test_portable_expected_hash(self):
         self.completed();self.full.export(self.fid,self.root/'export')
         with self.assertRaises(ArtifactIntegrityError):verify_export(self.root/'export',expected_manifest_sha256='0'*64)
@@ -363,7 +363,7 @@ class TestProviders(FullCase):
 class TestSeparation(unittest.TestCase):
     def test_no_upstream_execution_or_analysis_calls(self):
         import ast
-        root=Path(__file__).parents[1]/'scholarflow/fulltext_acquisition'
+        root=Path(__file__).parents[1]/'reprovane/fulltext_acquisition'
         forbidden={'resolve','resolve_seeds','expand_backward','expand_forward','submit_decision','submit_adjudication','extract_text','ocr','execute_frontier','search','embeddings'}
         for path in root.glob('*.py'):
             tree=ast.parse(path.read_text(encoding='utf-8'))
@@ -372,7 +372,7 @@ class TestSeparation(unittest.TestCase):
                     if node.func.attr=='search' and isinstance(node.func.value,ast.Name) and node.func.value.id in ('re','SENSITIVE'): continue
                     self.assertNotIn(node.func.attr,forbidden)
     def test_no_retired_search_endpoint(self):
-        root=Path(__file__).parents[1]/'scholarflow/fulltext_acquisition'
+        root=Path(__file__).parents[1]/'reprovane/fulltext_acquisition'
         self.assertNotIn('/v2/search',''.join(p.read_text(encoding='utf-8') for p in root.glob('*.py')))
     def test_migration_drift(self):
         import tempfile

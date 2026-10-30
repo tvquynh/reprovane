@@ -1,20 +1,20 @@
 # Stage11B full-text handoff and OA acquisition
 
-Input is exclusively `CorpusReleaseStore.handoff()` from one verified SEALED Stage11 release. No screening, identity, discovery or frontier operation is executed. Full-text failures leave all corpus members intact. The old `scholarflow.fulltext` module and legacy CLI remain unchanged.
+Input is exclusively `CorpusReleaseStore.handoff()` from one verified SEALED Stage11 release. No screening, identity, discovery or frontier operation is executed. Full-text failures leave all corpus members intact. The old `reprovane.fulltext` module and legacy CLI remain unchanged.
 
 ## Policy and operations
 
 Use Python 3.10+ and `pip install -r requirements-fulltext.txt`. The explicit example policy is `tests/fixtures/fulltext_acquisition/policy.json`. Defaults accept publishedVersion and acceptedVersion, reject submittedVersion and UNKNOWN. Every operational bound, provider set, version/host rank, MIME rule, export mode and privacy mode is in canonical hashed policy. Change policy to obtain a separate run. Manual ingest is optional and is deliberately not implemented; enabling it fails validation. Manual queue files support external human acquisition without any membership change.
 
 ```powershell
-python -m scholarflow.fulltext_acquisition create --workspace <workspace> --release-id <sealed-release-id> --policy <policy.json>
-python -m scholarflow.fulltext_acquisition discover --workspace <workspace> --run-id <run-id>
-python -m scholarflow.fulltext_acquisition acquire --workspace <workspace> --run-id <run-id> --expected-policy-sha256 <sha256>
-python -m scholarflow.fulltext_acquisition finalize --workspace <workspace> --run-id <run-id>
-python -m scholarflow.fulltext_acquisition verify --workspace <workspace> --run-id <run-id>
-python -m scholarflow.fulltext_acquisition export --workspace <workspace> --run-id <run-id> --directory <metadata-dir>
-python -m scholarflow.fulltext_acquisition verify-export --directory <metadata-dir> --expected-manifest-sha256 <sha256>
-python -m scholarflow.fulltext_acquisition export-pdfs --workspace <workspace> --run-id <run-id> --directory <pdf-view-dir>
+python -m reprovane.fulltext_acquisition create --workspace <workspace> --release-id <sealed-release-id> --policy <policy.json>
+python -m reprovane.fulltext_acquisition discover --workspace <workspace> --run-id <run-id>
+python -m reprovane.fulltext_acquisition acquire --workspace <workspace> --run-id <run-id> --expected-policy-sha256 <sha256>
+python -m reprovane.fulltext_acquisition finalize --workspace <workspace> --run-id <run-id>
+python -m reprovane.fulltext_acquisition verify --workspace <workspace> --run-id <run-id>
+python -m reprovane.fulltext_acquisition export --workspace <workspace> --run-id <run-id> --directory <metadata-dir>
+python -m reprovane.fulltext_acquisition verify-export --directory <metadata-dir> --expected-manifest-sha256 <sha256>
+python -m reprovane.fulltext_acquisition export-pdfs --workspace <workspace> --run-id <run-id> --directory <pdf-view-dir>
 ```
 
 Only discover/acquire resolve runtime credentials. OPENALEX_API_KEY and UNPAYWALL_EMAIL use process environment, then the named Windows User environment values, reusing Stage07's OpenAlex registry helper. No config file/profile/session is enumerated. No key in a URL: OpenAlex uses Bearer headers on the original OpenAlex origin only. Unpaywall email is added only to the runtime DOI URL, never to stored request identities. Unpaywall enabled without runtime email fails before discovery. An offline frozen-only policy needs neither credential. `verify`, exports and inspection never resolve credentials or perform HTTP.

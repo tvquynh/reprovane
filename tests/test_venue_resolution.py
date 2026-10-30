@@ -3,15 +3,15 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 from venue_fixtures import VenueCase,issn
-from scholarflow.core import ValidationError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.observations import ObservationStore
-from scholarflow.resolution import ResolutionStore
-from scholarflow.venue_resolution import VenueCandidateBlockTooLargeError,ResolutionConflictError,ResolutionStateError,DecisionSupersessionError
-from scholarflow.venue_resolution.normalization import normalize_issn,title_exact,title_normalized,title_status_normalized
-from scholarflow.venue_resolution.policy import VenuePolicy
-from scholarflow.venue_resolution.resolver import node_identity,entity_identity
+from reprovane.core import ValidationError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.observations import ObservationStore
+from reprovane.resolution import ResolutionStore
+from reprovane.venue_resolution import VenueCandidateBlockTooLargeError,ResolutionConflictError,ResolutionStateError,DecisionSupersessionError
+from reprovane.venue_resolution.normalization import normalize_issn,title_exact,title_normalized,title_status_normalized
+from reprovane.venue_resolution.policy import VenuePolicy
+from reprovane.venue_resolution.resolver import node_identity,entity_identity
 
 
 class TestVenueResolution(VenueCase):
@@ -139,7 +139,7 @@ class TestVenueResolution(VenueCase):
             row=dict(venue_resolution_run_id=rid,venue_entity_id='ven_a',provider_node_id=node['provider_node_id'],membership_basis_json='{}',created_at_utc='2026-01-01T00:00:00Z'); self.raw_insert('venue_entity_membership',row)
             with self.assertRaises(sqlite3.IntegrityError): self.raw_insert('venue_entity_membership',dict(row,venue_entity_id='ven_b'))
     def test_publication_store_not_clobbered(self):
-        from scholarflow.venue_resolution import VenueResolutionStore
+        from reprovane.venue_resolution import VenueResolutionStore
         publication=ResolutionStore(self.db); VenueResolutionStore(self.db)
         run=publication.create_resolution_run(self.revision['revision_id'],{'profiles':[{'normalizer_name':'venue-fixture','normalizer_version':'1','observation_schema_version':'1'}]})
         publication.add_resolution_input(run['resolution_run_id'],self.record()); publication.generate_candidates(run['resolution_run_id'])

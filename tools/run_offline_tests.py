@@ -17,7 +17,7 @@ def main():
     for name in ('OPENALEX_API_KEY', 'UNPAYWALL_EMAIL', 'GITHUB_TOKEN',
                  'GH_TOKEN', 'OPENAI_API_KEY', 'PYTHONPATH'):
         os.environ.pop(name, None)
-    with tempfile.TemporaryDirectory(prefix='scholarflow-offline-') as folder:
+    with tempfile.TemporaryDirectory(prefix='reprovane-offline-') as folder:
         home = Path(folder)
         for name in ('HOME', 'USERPROFILE', 'XDG_CONFIG_HOME', 'APPDATA'):
             os.environ[name] = str(home)

@@ -2,14 +2,14 @@
 import ast,contextlib,hashlib,io,json,sqlite3,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
-from scholarflow.core import FoundationError,ValidationError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.discovery import DiscoveryStore
-from scholarflow.discovery.expansion import FIELDS
-from scholarflow.discovery.__main__ import main
-from scholarflow.openalex import OpenAlexClient
-from scholarflow.openalex_acquisition import OpenAlexAcquisitionStore
+from reprovane.core import FoundationError,ValidationError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.discovery import DiscoveryStore
+from reprovane.discovery.expansion import FIELDS
+from reprovane.discovery.__main__ import main
+from reprovane.openalex import OpenAlexClient
+from reprovane.openalex_acquisition import OpenAlexAcquisitionStore
 from openalex_acquisition_fixtures import work,page,Session,Response,SYNTHETIC_KEY
 
 
@@ -249,18 +249,18 @@ class TestDiscoveryFailureAndGuards(DiscoveryCase):
         tables=list(self.db.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name LIKE 'discovery_%'")); schema=' '.join(r[0].lower() for r in tables)
         for name in ['included','excluded','eligible','screening','frontier','saturation','corpus_membership']: self.assertNotIn(name,schema)
     def test_discovery_has_no_second_transport(self):
-        for path in (Path(__file__).parents[1]/'scholarflow/discovery').glob('*.py'):
+        for path in (Path(__file__).parents[1]/'reprovane/discovery').glob('*.py'):
             tree=ast.parse(path.read_text(encoding='utf-8'))
             for node in ast.walk(tree):
                 if isinstance(node,(ast.Import,ast.ImportFrom)):
                     names=[a.name for a in node.names]+[getattr(node,'module','') or '']; self.assertFalse(any(n.split('.')[0] in ['requests','httpx','urllib','subprocess'] for n in names))
     def test_cli_help_no_credentials(self):
-        with patch('scholarflow.discovery.__main__.local_client',side_effect=AssertionError('credentials accessed')),contextlib.redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as error: main(['--help'])
+        with patch('reprovane.discovery.__main__.local_client',side_effect=AssertionError('credentials accessed')),contextlib.redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as error: main(['--help'])
         self.assertEqual(error.exception.code,0)
     def test_cli_create_requires_project_revision(self):
         with contextlib.redirect_stderr(io.StringIO()),self.assertRaises(SystemExit) as error: main(['create','--workspace',str(self.root/'cli')])
         self.assertEqual(error.exception.code,2)
     def test_cli_inspect_no_credentials(self):
-        with patch('scholarflow.discovery.__main__.local_client',side_effect=AssertionError('credentials accessed')),contextlib.redirect_stdout(io.StringIO()) as output:
+        with patch('reprovane.discovery.__main__.local_client',side_effect=AssertionError('credentials accessed')),contextlib.redirect_stdout(io.StringIO()) as output:
             self.assertEqual(main(['inspect','--workspace',str(self.db.workspace),'--run-id',self.rid]),0)
         self.assertEqual(json.loads(output.getvalue())['run']['discovery_run_id'],self.rid)

@@ -27,7 +27,7 @@ rerank, bulk harvesting, or automatic changes to query/corpus/sort.
 
 ## Legacy audit and compatibility
 
-Audited scholarflow/openalex.py, config.py, pipeline.py, literature_pipeline.py and
+Audited reprovane/openalex.py, config.py, pipeline.py, literature_pipeline.py and
 fulltext.py. Existing PER_PAGE already100; no200 migration is needed. Legacy
 download_queries uses one query-specific checkpoint signature, per-query limits,
 date/abstract filters, cursor resume, RecordStore DOI/ID aliases and flat JSONL/CSV
@@ -164,8 +164,8 @@ related works and OA/PDF links remain raw, never queued/fetched.
 ## Explicit API/CLI
 
 ```python
-from scholarflow.core.db import Database
-from scholarflow.openalex_acquisition import OpenAlexAcquisitionStore, local_client
+from reprovane.core.db import Database
+from reprovane.openalex_acquisition import OpenAlexAcquisitionStore, local_client
 spec = {"search": "bibliographic metadata", "filters": {"publication_year": 2024},
         "corpus": "core", "page_size": 100, "max_records": 20}
 with Database(workspace) as db, local_client() as client:
@@ -173,9 +173,9 @@ with Database(workspace) as db, local_client() as client:
 ```
 
 ```powershell
-python -m scholarflow.openalex_acquisition acquire --workspace C:/research/project --spec request.json
-python -m scholarflow.openalex_acquisition inspect --workspace C:/research/project --acquisition-id <id>
-python -m scholarflow.openalex_acquisition resume --workspace C:/research/project --acquisition-id <id> --spec request.json
+python -m reprovane.openalex_acquisition acquire --workspace C:/research/project --spec request.json
+python -m reprovane.openalex_acquisition inspect --workspace C:/research/project --acquisition-id <id>
+python -m reprovane.openalex_acquisition resume --workspace C:/research/project --acquisition-id <id> --spec request.json
 ```
 
 The saved request file must exclude secrets; credentials remain environment/ignored

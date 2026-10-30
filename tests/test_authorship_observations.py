@@ -9,11 +9,11 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scholarflow.core import ImmutabilityError, MigrationDriftError, ValidationError
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.observations import NormalizationProvenance, ObservationStore
+from reprovane.core import ImmutabilityError, MigrationDriftError, ValidationError
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.observations import NormalizationProvenance, ObservationStore
 
 TABLE = 'publication_authorship_observation'
 
@@ -244,7 +244,7 @@ class AuthorshipObservationCase(unittest.TestCase):
 
     def test_same_position_tie_order_is_deterministic(self):
         record,_=self.record()
-        with patch('scholarflow.observations.validation.utc_now',return_value='2026-01-01T00:00:00.000000Z'):
+        with patch('reprovane.observations.validation.utc_now',return_value='2026-01-01T00:00:00.000000Z'):
             self.add(record); self.add(record)
         rows=self.store.list_publication_authorship_observations(record)
         self.assertEqual([r['observation_id'] for r in rows],sorted(r['observation_id'] for r in rows))

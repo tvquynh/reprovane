@@ -9,18 +9,18 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scholarflow.core import ValidationError, MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.core.provenance import canonical_json
-from scholarflow.observations import ObservationStore, NormalizationProvenance
-from scholarflow.resolution import (ResolutionStateError, ResolutionConflictError, CandidateBlockTooLargeError,
+from reprovane.core import ValidationError, MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.core.provenance import canonical_json
+from reprovane.observations import ObservationStore, NormalizationProvenance
+from reprovane.resolution import (ResolutionStateError, ResolutionConflictError, CandidateBlockTooLargeError,
                                 DecisionSupersessionError)
-from scholarflow.resolution.store import ResolutionStore
-from scholarflow.resolution.policy import ResolverPolicy, digest, POLICY_NAME
-from scholarflow.resolution.normalization import normalize_doi, normalize_title, normalize_author, classify_publication_type
-from scholarflow.resolution.resolver import entity_identity, automatic
+from reprovane.resolution.store import ResolutionStore
+from reprovane.resolution.policy import ResolverPolicy, digest, POLICY_NAME
+from reprovane.resolution.normalization import normalize_doi, normalize_title, normalize_author, classify_publication_type
+from reprovane.resolution.resolver import entity_identity, automatic
 
 PROFILE={'normalizer_name':'fixture-normalizer','normalizer_version':'1','observation_schema_version':'1'}
 SELECTOR={'profiles':[PROFILE]}
@@ -414,7 +414,7 @@ class PublicationResolutionCase(unittest.TestCase):
         tables={r[0] for r in self.db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         self.assertFalse({'venue_entity','author_entity','work_family','discovery_run','discovery_edge','screening_run'} & tables)
     def test_scope_no_network_ai_imports(self):
-        for p in (Path(__file__).parents[1]/'scholarflow/resolution').glob('*.py'):
+        for p in (Path(__file__).parents[1]/'reprovane/resolution').glob('*.py'):
             for node in ast.walk(ast.parse(p.read_text(encoding='utf-8'))):
                 if isinstance(node,ast.Import): self.assertFalse({n.name.split('.')[0] for n in node.names}&{'requests','openai','sqlalchemy','numpy'})
     def test_errors_no_raw_metadata(self):
@@ -432,7 +432,7 @@ class PublicationResolutionCase(unittest.TestCase):
         records=[self.record(title='Unique '+str(i),year=2000+i) for i in range(15)]; sizes=[]
         def tracked(values,count):
             sizes.append(len(values)); return combinations(values,count)
-        with patch('scholarflow.resolution.resolver.combinations',side_effect=tracked): self.store.generate_candidates(self.run_for(records))
+        with patch('reprovane.resolution.resolver.combinations',side_effect=tracked): self.store.generate_candidates(self.run_for(records))
         self.assertTrue(sizes); self.assertEqual(max(sizes),1)
     def test_invalid_doi_observation_ids_retained(self):
         rid=self.record(dois=['10.example/invalid']); run=self.run_for([rid]); proof=json.loads(self.store.list_resolution_inputs(run)[0]['evidence_json'])

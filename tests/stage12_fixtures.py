@@ -4,19 +4,19 @@ from pathlib import Path
 from unittest.mock import patch
 from fulltext_acquisition_fixtures import FullCase,policy,location,Response,PDF2
 from openalex_acquisition_fixtures import work,Session
-from scholarflow.core.db import Database
-from scholarflow.core.foundation import Foundation
-from scholarflow.legacy_migration import audit,plan,execute,LegacyMigrationStore
-from scholarflow.screening import ScreeningStore
-from scholarflow.corpus_release import CorpusReleaseStore
+from reprovane.core.db import Database
+from reprovane.core.foundation import Foundation
+from reprovane.legacy_migration import audit,plan,execute,LegacyMigrationStore
+from reprovane.screening import ScreeningStore
+from reprovane.corpus_release import CorpusReleaseStore
 from corpus_release_fixtures import plan as corpus_plan
-from scholarflow.fulltext_acquisition import FullTextStore
-from scholarflow.openalex import OpenAlexClient
-from scholarflow.frontier import FrontierStore
-from scholarflow.search_validation import SearchValidationStore
-from scholarflow.venue_resolution import VenueResolutionStore
-from scholarflow.operations.workspace import doctor
-from scholarflow.corpus_release.model import digest
+from reprovane.fulltext_acquisition import FullTextStore
+from reprovane.openalex import OpenAlexClient
+from reprovane.frontier import FrontierStore
+from reprovane.search_validation import SearchValidationStore
+from reprovane.venue_resolution import VenueResolutionStore
+from reprovane.operations.workspace import doctor
+from reprovane.corpus_release.model import digest
 
 LEGACY=Path(__file__).parent/'fixtures/legacy_v4_1_0'
 
@@ -29,7 +29,7 @@ def deterministic_context():
         return prefix+'_'+hashlib.sha256(f'stage12-synthetic:{prefix}:{counts[prefix]}'.encode()).hexdigest()[:32]
     with contextlib.ExitStack() as stack:
         for name,module in list(sys.modules.items()):
-            if not name.startswith('scholarflow.'):continue
+            if not name.startswith('reprovane.'):continue
             if callable(getattr(module,'new_id',None)):stack.enter_context(patch.object(module,'new_id',new_id))
             if callable(getattr(module,'utc_now',None)):stack.enter_context(patch.object(module,'utc_now',lambda:'2026-01-01T00:00:00.000000Z'))
         yield

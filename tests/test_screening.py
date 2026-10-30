@@ -5,13 +5,13 @@ from pathlib import Path
 from unittest.mock import patch
 from screening_fixtures import ScreeningCase,plan
 from openalex_acquisition_fixtures import work
-from scholarflow.screening import ScreeningStore,ScreeningPlan
-from scholarflow.screening.__main__ import main
-from scholarflow.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
-from scholarflow.core.db import Database
-from scholarflow.core.migrations import MIGRATION_DIR
-from scholarflow.frontier import FrontierStore
-from scholarflow.observations import NormalizationProvenance
+from reprovane.screening import ScreeningStore,ScreeningPlan
+from reprovane.screening.__main__ import main
+from reprovane.core import FoundationError,ValidationError,ArtifactIntegrityError,MigrationDriftError
+from reprovane.core.db import Database
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.frontier import FrontierStore
+from reprovane.observations import NormalizationProvenance
 
 
 class TestScreeningPlan(unittest.TestCase):
@@ -316,11 +316,11 @@ class TestScreeningConcurrency(ScreeningCase):
 
 class TestScreeningSeparation(ScreeningCase):
     def test_offline_no_credentials_or_network(self):
-        with patch('socket.create_connection',side_effect=AssertionError('network')),patch('requests.sessions.Session.request',side_effect=AssertionError('HTTP')),patch('scholarflow.openalex_acquisition.credentials.local_client',side_effect=AssertionError('credentials')):
+        with patch('socket.create_connection',side_effect=AssertionError('network')),patch('requests.sessions.Session.request',side_effect=AssertionError('HTTP')),patch('reprovane.openalex_acquisition.credentials.local_client',side_effect=AssertionError('credentials')):
             self.screening(); self.unanimous(); self.store.finalize(self.sid); self.store.verify(self.sid); self.store.review_packet(self.sid,'reviewer_1')
         self.assertFalse(self.client.api_key)
     def test_no_second_engine_or_ai_imports_calls(self):
-        folder=Path(__file__).parents[1]/'scholarflow/screening'
+        folder=Path(__file__).parents[1]/'reprovane/screening'
         for path in folder.glob('*.py'):
             tree=ast.parse(path.read_text(encoding='utf-8'))
             for n in ast.walk(tree):

@@ -1,3 +1,15 @@
+# Reprovane provenance
+
+Lineage: **OpenAlex Literature Intelligence 4.1.0 → ScholarFlow 1.0.0 → Reprovane 2.0.0**.
+
+Reprovane 2.0.0 is the breaking distribution/import/CLI rebrand of the accepted ScholarFlow 1.0.0 source at commit `95120023dc738021963b8b1f78f81a7cfd6b2d4b`, tree `74d34d63588dfb05385c950f96c6e0d37decd3b7`. Scientific semantics, schema13, migration bytes, database/CAS paths and the actual `.litintel-writer.lock` locator remain unchanged. No `.reprovane-writer.lock` is introduced. Old documentation's `.scholarflow-writer.lock` wording did not match the shipped v1 implementation and is corrected here.
+
+This PR remains in `tvquynh/scholarflow`; the future in-place repository name is `tvquynh/reprovane`, only after separate acceptance/merge. No repository rename, v2 tag/release or registry publication is performed by this preparation. Historical v1 stable/RC tags, release IDs and assets remain intact. The predecessor remains archived and unchanged.
+
+The ScholarFlow repository began as a separate bootstrap, not imported predecessor Git ancestry. Reprovane continues that same repository's history. The following historical bootstrap record is preserved as a dated account of that transition; statements about unpublished bootstrap activity describe that earlier milestone, not the present remote state.
+
+## Historical ScholarFlow bootstrap record
+
 # ScholarFlow provenance
 
 ScholarFlow is the successor to `tvquynh/openalex-literature-intelligence`, not a v5 rename-in-place. The predecessor's legacy/tool baseline is v4.1.0; architecture development continued through the technically accepted Stage12 implementation. ScholarFlow starts its own product version line at 1.0.0, beginning with 1.0.0rc1.

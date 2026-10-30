@@ -1,5 +1,5 @@
 # Foundation migration checksums use exact bytes on Windows and POSIX alike.
-scholarflow/core/migrations/*.sql text eol=lf
+reprovane/core/migrations/*.sql text eol=lf
 # Synthetic Stage11B PDF fixtures must retain exact xref byte offsets.
 tests/fixtures/fulltext_acquisition/*.pdf binary
 # Preserve synthetic migration PDF bytes and source fixture fingerprints.

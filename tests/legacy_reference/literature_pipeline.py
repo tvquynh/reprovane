@@ -1,4 +1,4 @@
-"""Test-only predecessor command reference; never a ScholarFlow console entry point."""
+"""Test-only predecessor command reference; never a Reprovane console entry point."""
 #!/usr/bin/env python3
 from __future__ import annotations
 
@@ -8,22 +8,22 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 
-from scholarflow import __version__
-from scholarflow._version import LEGACY_PREDECESSOR_VERSION
-from scholarflow.common import write_csv, write_json
-from scholarflow.config import Config, ConfigError, load_config
-from scholarflow.fulltext import DEFAULT_DELAY, DEFAULT_MAX_MB, REQUEST_TIMEOUT, fetch_open_access
-from scholarflow.openalex import SEARCH_FIELDS, search_query_problem
-from scholarflow.pipeline import FUTURE_YEAR_QUARTILE_REASON, enrich_existing_file, load_queries, run_pipeline
-from scholarflow.scimago import source_history
-from scholarflow.scimago_repo import (
+from reprovane import __version__
+from reprovane._version import LEGACY_PREDECESSOR_VERSION
+from reprovane.common import write_csv, write_json
+from reprovane.config import Config, ConfigError, load_config
+from reprovane.fulltext import DEFAULT_DELAY, DEFAULT_MAX_MB, REQUEST_TIMEOUT, fetch_open_access
+from reprovane.openalex import SEARCH_FIELDS, search_query_problem
+from reprovane.pipeline import FUTURE_YEAR_QUARTILE_REASON, enrich_existing_file, load_queries, run_pipeline
+from reprovane.scimago import source_history
+from reprovane.scimago_repo import (
     DEFAULT_MANIFEST_URL,
     RepositoryError,
     load_repository_metadata,
     sync_repository,
     validate_cached_repository,
 )
-from scholarflow.venues import VenueTierError, VenueTiers, admit_tier_problem
+from reprovane.venues import VenueTierError, VenueTiers, admit_tier_problem
 
 # No personal default: the OpenAlex mailto comes from --email or config.json openalex.email (else none is sent).
 DEFAULT_EMAIL = ""

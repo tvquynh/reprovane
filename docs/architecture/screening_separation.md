@@ -2,7 +2,7 @@
 
 Baseline: Stage09 `077bacd566c4260b7e6ee74138bd733107c71970`, tree
 `cd556390788e401538bcd8c1ac5f6e2fbabe7695`,918 tests. Stage10 adds migration0010
-and `scholarflow.screening`; all historical implementations/migrations/tests stay intact.
+and `reprovane.screening`; all historical implementations/migrations/tests stay intact.
 
 ## Input and frozen candidates
 
@@ -162,7 +162,7 @@ active adjudicated rate, include/exclude/unresolved counts and final exclusion c
 counts. Rates use assignment slots or canonical candidate count as appropriate;
 empty completion=1, empty conflict/adjudication rate=0. No kappa/quality score is added.
 
-`python -m scholarflow.screening` commands: create, inspect, export-review-packet,
+`python -m reprovane.screening` commands: create, inspect, export-review-packet,
 import-decisions, submit-decision, resolve, submit-adjudication, export-conflicts,
 finalize, verify, handoff. All require --workspace; create needs --project-revision,
 --discovery-run and --plan JSON; other commands use --run-id. Submission JSON files
