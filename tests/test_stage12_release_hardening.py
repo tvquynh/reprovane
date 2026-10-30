@@ -241,7 +241,7 @@ for family in [*ROUTES,'workspace','legacy','project','resolution','venue-resolu
 
 class TestReleasePackage(unittest.TestCase):
     def test_single_version_metadata(self):
-        p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['tool']['setuptools']['dynamic']['version']['attr'],'reprovane._version.__version__');self.assertEqual(__version__,'2.0.0')
+        p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['tool']['setuptools']['dynamic']['version']['attr'],'reprovane._version.__version__');self.assertEqual(__version__,'2.0.1')
     def test_runtime_dependencies_explicit(self):self.assertEqual(tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['project']['dependencies'],['requests>=2.31,<3','pypdf>=6,<7'])
     def test_installed_entrypoints_declared(self):p=tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'));self.assertEqual(p['project']['scripts']['reprovane'],'reprovane.__main__:main')
     def test_migration_package_data(self):self.assertIn('migrations/*.sql',tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['tool']['setuptools']['package-data']['reprovane.core'])

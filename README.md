@@ -6,7 +6,7 @@ Reprovane is an open-source tool that helps researchers collect literature,
 record review decisions, freeze a review corpus, and organize eligible
 open-access full text with a traceable record of the work.
 
-**Reprovane 2.0.0 is the first public release of Reprovane.**
+**Reprovane 2.0.0 was the first public release of Reprovane.**
 
 Human reviewers remain responsible for screening and study inclusion decisions.
 
@@ -30,7 +30,7 @@ pip install reprovane
 
 You can also install a Reprovane wheel from [GitHub Releases](https://github.com/tvquynh/reprovane/releases).
 For a separate Python environment and Windows setup, follow the
-[Vietnamese Quick Start](QUICKSTART_vi.md).
+[Vietnamese Quick Start](https://github.com/tvquynh/reprovane/blob/main/QUICKSTART_vi.md).
 
 ## Quick start
 
@@ -41,8 +41,8 @@ reprovane workspace init --workspace "my-review"
 ```
 
 These first steps work offline and do not need an API key.
-Continue with the [Quick Start](QUICKSTART_vi.md) to create your first project,
-then use the [User Guide](USER_GUIDE_vi.md) for a complete review workflow.
+Continue with the [Quick Start](https://github.com/tvquynh/reprovane/blob/main/QUICKSTART_vi.md) to create your first project,
+then use the [User Guide](https://github.com/tvquynh/reprovane/blob/main/USER_GUIDE_vi.md) for a complete review workflow.
 
 ## How Reprovane works
 
@@ -55,16 +55,16 @@ whether a study belongs in your review.
 
 ## Documentation
 
-- [Quick Start — Windows, Linux, and macOS](QUICKSTART_vi.md)
-- [User Guide — from search to corpus and full text](USER_GUIDE_vi.md)
-- [Operations — backups, recovery, and troubleshooting](OPERATIONS.md)
-- [Security and privacy](SECURITY.md)
-- [Third-party data and redistribution](THIRD_PARTY_DATA.md)
-- [Changelog](CHANGELOG.md)
+- [Quick Start — Windows, Linux, and macOS](https://github.com/tvquynh/reprovane/blob/main/QUICKSTART_vi.md)
+- [User Guide — from search to corpus and full text](https://github.com/tvquynh/reprovane/blob/main/USER_GUIDE_vi.md)
+- [Operations — backups, recovery, and troubleshooting](https://github.com/tvquynh/reprovane/blob/main/OPERATIONS.md)
+- [Security and privacy](https://github.com/tvquynh/reprovane/blob/main/SECURITY.md)
+- [Third-party data and redistribution](https://github.com/tvquynh/reprovane/blob/main/THIRD_PARTY_DATA.md)
+- [Changelog](https://github.com/tvquynh/reprovane/blob/main/CHANGELOG.md)
 
-For development and architecture details, see [Architecture](ARCHITECTURE.md).
+For development and architecture details, see [Architecture](https://github.com/tvquynh/reprovane/blob/main/ARCHITECTURE.md).
 Source and issues: [tvquynh/reprovane](https://github.com/tvquynh/reprovane).
 
 ## License
 
-Reprovane is available under the [MIT License](LICENSE).
+Reprovane is available under the [MIT License](https://github.com/tvquynh/reprovane/blob/main/LICENSE).

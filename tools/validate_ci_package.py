@@ -12,6 +12,7 @@ import tarfile
 import tempfile
 import venv
 import zipfile
+from validate_release import source_version, validate_handoff
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,13 +33,15 @@ def check_names(names):
             raise AssertionError('Historical production namespace packaged')
 
 
-def identity(text):
+def identity(text, version):
     metadata = Parser().parsestr(text)
     assert metadata['Name'] == 'reprovane'
-    assert metadata['Version'] == '2.0.0'
+    assert metadata['Version'] == version
 
 
 def main():
+    version = source_version(ROOT)
+    validate_handoff(ROOT/'dist', version)
     wheels = list((ROOT/'dist').glob('*.whl'))
     sources = list((ROOT/'dist').glob('*.tar.gz'))
     assert len(wheels) == len(sources) == 1
@@ -46,7 +49,7 @@ def main():
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         check_names(names)
-        identity(archive.read(next(n for n in names if n.endswith('.dist-info/METADATA'))).decode())
+        identity(archive.read(next(n for n in names if n.endswith('.dist-info/METADATA'))).decode(), version)
         entry = configparser.ConfigParser()
         entry.read_string(archive.read(next(n for n in names if n.endswith('.dist-info/entry_points.txt'))).decode())
         assert dict(entry['console_scripts']) == {'reprovane': 'reprovane.__main__:main'}
@@ -55,7 +58,7 @@ def main():
         check_names(archive.getnames())
         metadata = archive.extractfile(source.name.removesuffix('.tar.gz')+'/PKG-INFO')
         assert metadata is not None
-        identity(metadata.read().decode())
+        identity(metadata.read().decode(), version)
     for artifact in (wheel, source):
         print('SHA256', hashlib.sha256(artifact.read_bytes()).hexdigest(), artifact.name, flush=True)
         with tempfile.TemporaryDirectory(prefix='reprovane-package-') as folder:
@@ -73,7 +76,7 @@ def main():
                 env.pop(key, None)
             code = (
                 'import importlib.metadata as m,importlib.util,json,pathlib,sys,reprovane; '
-                "assert m.version('reprovane')=='2.0.0'; "
+                f"assert m.version('reprovane')=={version!r}; "
                 'assert pathlib.Path(sys.prefix) in pathlib.Path(reprovane.__file__).parents; '
                 "assert importlib.util.find_spec('scholarflow') is None; "
                 "assert {e.name for e in m.distribution('reprovane').entry_points if e.group=='console_scripts'}=={'reprovane'}; "

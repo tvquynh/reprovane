@@ -25,7 +25,7 @@ def assert_source_hygiene(root):
 
 
 class TestReprovaneIdentity(unittest.TestCase):
-    def test_version(self):self.assertEqual(reprovane.__version__,'2.0.0')
+    def test_version(self):self.assertEqual(reprovane.__version__,'2.0.1')
     def test_distribution(self):self.assertEqual(tomllib.loads((ROOT/'pyproject.toml').read_text())['project']['name'],'reprovane')
     def test_only_console_script(self):self.assertEqual(tomllib.loads((ROOT/'pyproject.toml').read_text())['project']['scripts'],{'reprovane':'reprovane.__main__:main'})
     def test_version_source(self):self.assertEqual(tomllib.loads((ROOT/'pyproject.toml').read_text())['tool']['setuptools']['dynamic']['version']['attr'],'reprovane._version.__version__')
@@ -48,12 +48,12 @@ class TestReprovaneIdentity(unittest.TestCase):
                 if isinstance(node,ast.ImportFrom):self.assertFalse((node.module or '').startswith('litintel'))
     def test_old_package_not_required(self):
         code="import sys; sys.modules['litintel']=None; import reprovane; from reprovane.operations.workspace import doctor; assert doctor()['offline']; print(reprovane.__version__)"
-        p=subprocess.run([sys.executable,'-c',code],cwd=ROOT,capture_output=True,text=True);self.assertEqual(p.returncode,0);self.assertEqual(p.stdout.strip(),'2.0.0')
+        p=subprocess.run([sys.executable,'-c',code],cwd=ROOT,capture_output=True,text=True);self.assertEqual(p.returncode,0);self.assertEqual(p.stdout.strip(),'2.0.1')
     def test_current_provider_modules_retained(self):
         for name in ('openalex_acquisition','venue_intelligence','providers','discovery','screening','corpus_release','fulltext_acquisition'):self.assertTrue((ROOT/'reprovane'/name).exists())
     def test_schema_distinct_from_version(self):
         with tempfile.TemporaryDirectory() as folder:
-            result=initialize(Path(folder));self.assertEqual(result['schema_version'],13);self.assertEqual(reprovane.__version__,'2.0.0')
+            result=initialize(Path(folder));self.assertEqual(result['schema_version'],13);self.assertEqual(reprovane.__version__,'2.0.1')
     def test_sql_bytes_and_order_preserved(self):
         expected=json.loads((ROOT/'tests/fixtures/bootstrap/migration_hashes.json').read_text());actual={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(MIGRATION_DIR.glob('*.sql'))};self.assertEqual(actual,expected);self.assertEqual(len(actual),13)
     def test_schema13_hash(self):self.assertEqual(hashlib.sha256((MIGRATION_DIR/'0013_legacy_v4_migration.sql').read_bytes()).hexdigest(),'7d85a8e2a82cc12514b10aa78b5276d32e24c427f778b15f874e01edc35043ff')
@@ -106,7 +106,7 @@ class TestSourceExportHygiene(unittest.TestCase):
 class TestReprovaneCLI(unittest.TestCase):
     def test_version_only_offline(self):
         with patch('socket.socket.connect',side_effect=AssertionError('network forbidden')),self.assertRaises(SystemExit) as ctx,contextlib.redirect_stdout(io.StringIO()) as out:main(['--version'])
-        self.assertEqual(ctx.exception.code,0);self.assertEqual(out.getvalue(),'2.0.0\n')
+        self.assertEqual(ctx.exception.code,0);self.assertEqual(out.getvalue(),'2.0.1\n')
     def test_help_product(self):
         with self.assertRaises(SystemExit),contextlib.redirect_stdout(io.StringIO()) as out:main(['--help'])
         self.assertIn('Reprovane',out.getvalue());self.assertNotIn('compat =',out.getvalue())

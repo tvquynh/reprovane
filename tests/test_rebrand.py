@@ -25,11 +25,11 @@ ROOT = Path(__file__).resolve().parents[1]
 class TestRebrandContract(unittest.TestCase):
     def test_installed_distribution_metadata(self):
         self.assertEqual(importlib.metadata.metadata('reprovane')['Name'], 'reprovane')
-        self.assertEqual(importlib.metadata.version('reprovane'), '2.0.0')
+        self.assertEqual(importlib.metadata.version('reprovane'), '2.0.1')
 
     def test_version_and_lineage(self):
         from reprovane._version import LEGACY_PREDECESSOR_VERSION
-        self.assertEqual(reprovane.__version__, '2.0.0')
+        self.assertEqual(reprovane.__version__, '2.0.1')
         self.assertEqual(LEGACY_PREDECESSOR_VERSION, '4.1.0')
 
     def test_no_old_namespace(self):
@@ -44,7 +44,7 @@ class TestRebrandContract(unittest.TestCase):
     def test_module_cli(self):
         result = subprocess.run([sys.executable, '-m', 'reprovane', '--version'],
                                 capture_output=True, text=True, check=True)
-        self.assertEqual(result.stdout, '2.0.0\n')
+        self.assertEqual(result.stdout, '2.0.1\n')
 
     def test_cli_help(self):
         with self.assertRaises(SystemExit), contextlib.redirect_stdout(io.StringIO()) as out:
