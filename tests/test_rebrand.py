@@ -106,5 +106,49 @@ class TestRebrandContract(unittest.TestCase):
         self.assertEqual(reprovane_e2e(), expected)
 
 
+class TestPostRenameIdentity(unittest.TestCase):
+    @staticmethod
+    def identity_audit():
+        spec = importlib.util.spec_from_file_location('post_rename_audit', ROOT/'tools/audit_identity.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_runtime_uses_canonical_repository(self):
+        from reprovane.fulltext import USER_AGENT
+        self.assertIn('https://github.com/tvquynh/reprovane', USER_AGENT)
+        self.assertNotIn('https://github.com/tvquynh/scholarflow', USER_AGENT)
+
+    def test_main_source_and_unreleased_status(self):
+        text = (ROOT/'README.md').read_text(encoding='utf-8')
+        self.assertIn('https://github.com/tvquynh/reprovane', text)
+        self.assertIn('first public release of Reprovane', text)
+        self.assertIn('pip install reprovane', text)
+        self.assertNotIn('ScholarFlow', text)
+        for detail in ('schema', 'migration hashes', 'PEP517', 'not published', 'rename pending'):
+            self.assertNotIn(detail, text)
+        status = (ROOT/'OPERATIONS.md').read_text(encoding='utf-8')
+        self.assertIn('chưa tạo tag/release v2.0.0', status)
+        quick = (ROOT/'QUICKSTART_vi.md').read_text(encoding='utf-8')
+        self.assertIn('git clone --branch main --single-branch https://github.com/tvquynh/reprovane.git', quick)
+        self.assertIn('python.exe -m pip install reprovane', quick)
+        self.assertLess(quick.index('python.exe -m pip install reprovane'), quick.index('## 3.'))
+        self.assertGreater(quick.index('## Advanced: build from source'), quick.index('## Trên Linux/macOS'))
+        for detail in ('nhánh đang chờ xét duyệt', 'Xin tệp wheel', 'schema 13', 'migration 0014'):
+            self.assertNotIn(detail, quick)
+        self.assertEqual(self.identity_audit().stale_current_status(), [])
+
+    def test_identity_audit_rejects_stale_runtime_url(self):
+        module = self.identity_audit()
+        self.assertEqual(module.classify('reprovane/fulltext.py', 'https://github.com/tvquynh/scholarflow'),
+                         'BUG/STALE_CURRENT_IDENTITY')
+
+    def test_remaining_reference_categories_are_explicit(self):
+        rows = self.identity_audit().audit()
+        categories = {r['category'] for r in rows}
+        self.assertEqual(categories, {'HISTORICAL_PROVENANCE', 'WORKSPACE_COMPATIBILITY',
+                                      'CURRENT_MIGRATION_DOC', 'TEST_ASSERTION'})
+
+
 if __name__ == '__main__':
     unittest.main()

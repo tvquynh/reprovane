@@ -1,6 +1,6 @@
 # Vận hành Reprovane
 
-Đọc [Quick Start](QUICKSTART_vi.md) để cài và [hướng dẫn sử dụng](USER_GUIDE_vi.md) để thực hiện đề tài. Reprovane dùng Python 3.11+, `requests>=2.31,<3`, `pypdf>=6,<7`. Bản 2.0.0 đang chuẩn bị review, không giả định đã có trên registry. Các ví dụ `reprovane` dưới đây cần môi trường đã cài được đưa vào PATH; người mới dùng đường dẫn `$rp` như Quick Start.
+Đọc [Quick Start](QUICKSTART_vi.md) để cài và [hướng dẫn sử dụng](USER_GUIDE_vi.md) để thực hiện đề tài. Reprovane dùng Python 3.11+, `requests>=2.31,<3`, `pypdf>=6,<7`. Mã nguồn bản 2.0.0 đã có trên main của kho chính thức `tvquynh/reprovane`; chưa tạo tag/release v2.0.0 và chưa phát hành trên PyPI/TestPyPI. Các ví dụ `reprovane` dưới đây cần môi trường đã cài được đưa vào PATH; người mới dùng đường dẫn `$rp` như Quick Start.
 
 ## Nhận diện đúng thư mục và trạng thái
 

@@ -1,47 +1,70 @@
 # Reprovane
 
-Reprovane — Reproducible literature discovery, screening, and evidence management.
+Reproducible literature discovery, screening, and evidence management.
 
-**Reprovane 2.0.0 đang được chuẩn bị để review.** Đây là tên mới của ScholarFlow 1.0.0; thay đổi tên distribution, Python import và CLI là thay đổi không tương thích về giao diện. Schema cơ sở dữ liệu vẫn là **13**. Chưa phát hành Reprovane trên PyPI/TestPyPI. Kho hiện vẫn ở [tvquynh/scholarflow](https://github.com/tvquynh/scholarflow); kế hoạch đổi tên kho thành `tvquynh/reprovane` chỉ được thực hiện sau khi PR được chấp thuận và merge ở giai đoạn riêng.
+Reprovane is an open-source tool that helps researchers collect literature,
+record review decisions, freeze a review corpus, and organize eligible
+open-access full text with a traceable record of the work.
 
-## Bắt đầu từ đâu?
+**Reprovane 2.0.0 is the first public release of Reprovane.**
 
-- Chưa dùng dòng lệnh: đọc [Quick Start tiếng Việt](QUICKSTART_vi.md), làm bài thực hành ngoại tuyến từng bước.
-- Muốn thực hiện một đề tài: đọc [Hướng dẫn sử dụng](USER_GUIDE_vi.md), gồm quy trình, điểm cần con người quyết định và cách đọc kết quả.
-- Đã dùng bản 1: đọc [Chuyển từ ScholarFlow 1](MIGRATION_FROM_SCHOLARFLOW_1.md) trước khi mở dữ liệu cũ.
-- Quản lý dữ liệu và xử lý sự cố: [Vận hành](OPERATIONS.md), [Bảo mật](SECURITY.md), [Dữ liệu bên thứ ba](THIRD_PARTY_DATA.md).
-- Tìm hiểu kỹ thuật: [Kiến trúc](ARCHITECTURE.md), [Nguồn gốc](PROVENANCE.md), [Lịch sử thay đổi](CHANGELOG.md).
+Human reviewers remain responsible for screening and study inclusion decisions.
 
-## Công cụ làm được gì?
+## What you can do
 
-Reprovane lưu dữ liệu nguồn và bằng chứng để kiểm tra lại quá trình tổng quan tài liệu: tìm có giới hạn trên OpenAlex; ghi nhận và phân giải định danh bài/nguồn xuất bản; theo dõi đường trích dẫn; kiểm tra chiến lược tìm; thu nhận quyết định sàng lọc của con người; đóng băng tập bài; tìm và kiểm tra bản toàn văn truy cập mở.
+- Search and collect literature from OpenAlex with reproducible provenance.
+- Expand your search through backward and forward citations.
+- Track venue evidence from SCImago, Scopus, and Web of Science.
+- Record human screening decisions and resolve reviewer disagreements.
+- Freeze a review corpus with its selected studies and supporting metadata.
+- Find eligible open-access full text and keep unresolved items in a manual queue.
+- Check the integrity of your workspace and exported results.
 
-Một bài tìm thấy chưa phải một bài được chọn. Xếp hạng SCImago, tình trạng Scopus và bộ sưu tập Web of Science là các loại bằng chứng riêng, không gộp thành một cờ “indexed”. Công cụ không bảo đảm tìm đủ mọi bài, không tự đánh giá tính đúng đắn khoa học và không dùng AI để quyết định đưa bài vào corpus.
+## Install
 
-Chỉ bản `publishedVersion`/`acceptedVersion` đủ điều kiện theo chính sách mặc định mới được tự thu nhận; `submittedVersion`/không rõ phiên bản bị từ chối tự động. Thiếu PDF không loại bài khỏi tập nghiên cứu. Mục chưa giải quyết nằm trong hàng đợi thủ công; chức năng nhập PDF thủ công vào hệ thống chưa được triển khai.
+Requires **Python 3.11 or newer**.
 
-## Kiểm tra nhanh sau khi đã cài wheel đúng nhánh
+```bash
+pip install reprovane
+```
 
-Python 3.11+; thư viện runtime: `requests>=2.31,<3`, `pypdf>=6,<7`. Chạy trong môi trường đã cài Reprovane, hoặc dùng đường dẫn exe như Quick Start:
+You can also install a Reprovane wheel from [GitHub Releases](https://github.com/tvquynh/reprovane/releases).
+For a separate Python environment and Windows setup, follow the
+[Vietnamese Quick Start](QUICKSTART_vi.md).
 
-```text
+## Quick start
+
+```bash
 reprovane --version
-reprovane --help
 reprovane doctor --offline
-reprovane workspace init --workspace "practice workspace"
-reprovane doctor --offline --workspace "practice workspace" --full
+reprovane workspace init --workspace "my-review"
 ```
 
-Kỳ vọng version `2.0.0`, schema `13`, không cần API key cho các thao tác này. Tìm trực tuyến cần cấu hình runtime `OPENALEX_API_KEY`; Unpaywall dùng `UNPAYWALL_EMAIL` khi được bật. Không đặt giá trị bí mật trong kế hoạch, mã nguồn hay báo cáo.
+These first steps work offline and do not need an API key.
+Continue with the [Quick Start](QUICKSTART_vi.md) to create your first project,
+then use the [User Guide](USER_GUIDE_vi.md) for a complete review workflow.
 
-## Dành cho người phát triển
+## How Reprovane works
 
-```text
-python -m pip install -e .
-python tools/run_offline_tests.py
-python -m pip install -r requirements-ci.txt
-python -m build
-python tools/validate_ci_package.py
-```
+Define your project → collect literature → follow citations → review studies
+→ freeze your corpus → organize full text → verify and export.
 
-Suite ngoại tuyến chặn mạng ngoài loopback, kể cả tiến trình Python con. Build sử dụng PEP 517 cô lập; wheel và sdist được kiểm tra bằng môi trường mới ngoài checkout. Các tài liệu dưới `docs/legacy/` và `MIGRATION_TO_SCHOLARFLOW.md` là lịch sử, không phải hướng dẫn CLI hiện hành. Phát âm gợi ý: **REE-proh-vayn**.
+Keep your search plans and reviewer decisions alongside the results so the
+review process can be inspected later. Full-text availability does not decide
+whether a study belongs in your review.
+
+## Documentation
+
+- [Quick Start — Windows, Linux, and macOS](QUICKSTART_vi.md)
+- [User Guide — from search to corpus and full text](USER_GUIDE_vi.md)
+- [Operations — backups, recovery, and troubleshooting](OPERATIONS.md)
+- [Security and privacy](SECURITY.md)
+- [Third-party data and redistribution](THIRD_PARTY_DATA.md)
+- [Changelog](CHANGELOG.md)
+
+For development and architecture details, see [Architecture](ARCHITECTURE.md).
+Source and issues: [tvquynh/reprovane](https://github.com/tvquynh/reprovane).
+
+## License
+
+Reprovane is available under the [MIT License](LICENSE).

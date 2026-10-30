@@ -37,4 +37,4 @@ Kỳ vọng version `2.0.0`, schema `13`, không thêm migration và không có 
 
 Chỉ sau khi kiểm tra bản sao thành công mới áp dụng môi trường mới cho workspace chính. Nếu cần quay lại, dừng chương trình mới và dùng môi trường cũ với bản sao đã xác minh; không sửa lịch sử migration để ép mở dữ liệu.
 
-Kho GitHub hiện vẫn là `tvquynh/scholarflow`. Tên tương lai `tvquynh/reprovane` chưa được áp dụng trong bước chuẩn bị PR này; chưa có cam kết URL cũ đã chuyển hướng. Việc rename kho, tag/release và phát hành registry được xét duyệt riêng.
+Kho chính thức hiện là [tvquynh/reprovane](https://github.com/tvquynh/reprovane), đã đổi tên tại chỗ và giữ nguyên lịch sử. GitHub hiện chuyển hướng URL cũ `tvquynh/scholarflow` sang kho này. Mã nguồn Reprovane 2.0.0 đã có trên main; chưa tạo tag/release v2.0.0 và chưa phát hành PyPI/TestPyPI. Chuyển hướng kho GitHub không chuyển hướng tên distribution/import/CLI cũ; tiếp tục dùng môi trường riêng như hướng dẫn ở trên.
