@@ -1,59 +1,57 @@
-# Bắt đầu với Reprovane 2.0.0
+# Bắt đầu với Reprovane
 
-Tài liệu này dành cho người chưa quen dòng lệnh. Trong khoảng 15–20 phút, bạn sẽ cài công cụ, tạo nơi lưu dữ liệu và tạo hồ sơ đề tài. Các bước này chưa tìm bài, chưa tải PDF và không cần API key.
+Hướng dẫn này giúp bạn cài Reprovane, tạo nơi lưu dữ liệu và lập hồ sơ đề tài đầu tiên. Bài thực hành chưa tìm bài hay tải PDF, nên không cần API key.
 
 ## 1. Chuẩn bị
 
-Máy cần Python 3.11 trở lên và kết nối mạng để cài thư viện. Mở **Windows PowerShell** từ menu Start. Chỉ chép nội dung trong khối lệnh, không chép dấu `PS>` nếu thấy nó ở cửa sổ của bạn. Chạy từng khối, chờ xong rồi chạy tiếp.
+Cần **Python 3.11 trở lên**, kết nối mạng để cài phần mềm và một thư mục bạn có quyền ghi. Mở **Windows PowerShell** từ menu Start. Chép từng khối lệnh, chờ chạy xong rồi làm bước tiếp; không chép dấu `PS>` của cửa sổ PowerShell và không gõ vào dấu nhắc `>>>` của Python.
 
 ```powershell
 python --version
 ```
 
-Kết quả phải là `Python 3.11...` hoặc mới hơn. Nếu Windows mở Microsoft Store hoặc báo không tìm thấy, cài Python từ trang chính thức của Python rồi mở lại PowerShell. Trên máy có Python Launcher, thử `py -3 --version` và dùng `py -3 -m venv` ở bước sau. Không gõ các lệnh vào dấu nhắc `>>>` của Python.
+Nếu không tìm thấy Python hoặc Windows mở Microsoft Store, cài Python từ trang chính thức rồi mở lại PowerShell. Máy có Python Launcher có thể dùng `py -3 --version` và thay `python -m venv` bằng `py -3 -m venv` ở bước sau.
 
-## 2. Cài vào môi trường riêng
+## 2. Cài Reprovane vào môi trường riêng
 
-Mã nguồn Reprovane 2.0.0 đã có trên **main** tại `tvquynh/reprovane`; chưa tạo tag/release `v2.0.0` và chưa phát hành trên PyPI/TestPyPI. Không chạy `pip install reprovane` để thực hiện hướng dẫn này. Xin tệp wheel từ commit đã kiểm tra trên main từ người phụ trách hoặc làm theo mục “Tạo wheel từ mã nguồn” bên dưới. Đặt tệp `reprovane-2.0.0-py3-none-any.whl` trong thư mục Downloads và đối chiếu SHA256 với bản kê được cung cấp cùng tệp.
+Tạo một thư mục làm việc trong Documents. Môi trường riêng giữ phần mềm và thư viện của Reprovane tách khỏi các công việc Python khác. Các lệnh dưới đây không cần kích hoạt môi trường hay đổi Execution Policy.
 
 ```powershell
-Set-Location "$HOME\Downloads"
+$base = "$HOME\Documents\Reprovane"
+New-Item -ItemType Directory -Force "$base" | Out-Null
+Set-Location "$base"
 $env:PYTHONUTF8 = "1"
-Get-FileHash .\reprovane-2.0.0-py3-none-any.whl -Algorithm SHA256
 python -m venv .venv-reprovane
-.\.venv-reprovane\Scripts\python.exe -m pip install .\reprovane-2.0.0-py3-none-any.whl
-$rp = "$HOME\Downloads\.venv-reprovane\Scripts\reprovane.exe"
+.\.venv-reprovane\Scripts\python.exe -m pip install --upgrade pip
+.\.venv-reprovane\Scripts\python.exe -m pip install reprovane
+$rp = ".\.venv-reprovane\Scripts\reprovane.exe"
 & $rp --version
 & $rp doctor --offline
 ```
 
-`--version` phải in `2.0.0`. Doctor in JSON, tức một bản ghi có tên trường và giá trị. `offline: true`, `python_supported: true` và các thư viện `requests`, `pypdf` có giá trị `true` cho biết có thể tiếp tục. `NOT_IN_PROCESS_USER_ENV_NOT_READ` về API key không phải lỗi cho bài thực hành ngoại tuyến này. Hướng dẫn dùng đường dẫn trực tiếp nên không cần kích hoạt môi trường hay đổi Execution Policy.
+Phiên bản của hướng dẫn là `2.0.0`. Doctor in một bản ghi JSON gồm tên trường và giá trị; `offline: true`, `python_supported: true`, các thư viện trong `dependencies` có giá trị `true` là kết quả mong đợi. Thông báo chưa có API key không cản trở bài thực hành này.
 
-Nếu máy không có mạng, nhờ người phụ trách chuẩn bị thư mục wheelhouse gồm wheel Reprovane và toàn bộ phụ thuộc đúng phiên bản Python/nền tảng, rồi thay lệnh cài bằng:
+Nếu Windows báo Application Control chặn `reprovane.exe`, dùng cách gọi Python module ở mục xử lý lỗi bên dưới rồi tiếp tục. Không cần tắt chính sách bảo vệ máy.
 
-```powershell
-.\.venv-reprovane\Scripts\python.exe -m pip install --no-index --find-links .\wheelhouse .\reprovane-2.0.0-py3-none-any.whl
-```
+## 3. Tạo workspace và đề tài
 
-## 3. Tạo workspace và đề tài đầu tiên
-
-**Workspace** là một thư mục chứa cơ sở dữ liệu và bằng chứng; không phải thư mục cài phần mềm. Dùng đường dẫn mới cho bài thực hành. Giữ dấu nháy để đường dẫn có khoảng trắng vẫn hoạt động.
+**Workspace** là thư mục chứa dữ liệu nghiên cứu, khác với thư mục cài phần mềm. Dùng thư mục mới cho bài thực hành; giữ dấu nháy quanh đường dẫn có khoảng trắng.
 
 ```powershell
-$ws = "$HOME\Documents\Reprovane practice"
+$ws = Join-Path $base "my-review"
 & $rp workspace init --workspace "$ws"
-& $rp doctor --offline --workspace "$ws" --full
+& $rp doctor --offline --workspace "$ws"
 $project = (& $rp project create --workspace "$ws" --key practice-review --display-name "Đề tài thực hành" | ConvertFrom-Json)
 if ($LASTEXITCODE -ne 0) { throw "Chưa tạo được đề tài; dừng và đọc thông báo." }
 $project.project_id
 ```
 
-Doctor phải báo `schema_version: 13`, `foreign_key_violations: 0`. ID vừa in ra là mã nội bộ do phần mềm sinh; giữ lại để dùng cho đề tài này. Không chép mã minh họa của người khác. `--key` là tên ngắn duy nhất trong workspace: nếu đã tạo thành công, không chạy lại lệnh create với cùng key; dùng ID đã lưu hoặc bắt đầu bài thực hành ở một workspace mới.
+Giữ ID vừa in ra: đó là mã riêng của đề tài này. Nếu đã tạo thành công, không chạy lại `project create` với cùng key; dùng ID đã lưu hoặc bắt đầu bài thử trong workspace mới. Workspace chưa có bài sau bước này là bình thường.
 
-Tạo một bản mô tả đề tài. Đây mới là hồ sơ mục tiêu; kế hoạch sàng lọc chi tiết sẽ được thiết lập riêng.
+Tạo bản mô tả câu hỏi. Đây là hồ sơ thực hành; nhóm sẽ lập kế hoạch tìm kiếm và tiêu chí sàng lọc riêng trước khi làm nghiên cứu thật.
 
 ```powershell
-$manifest = "$HOME\Documents\reprovane-practice-project.json"
+$manifest = Join-Path $base "practice-project.json"
 @'
 {
   "title": "Đề tài thực hành",
@@ -68,64 +66,72 @@ $revision.revision_id
 & $rp verify --offline --workspace "$ws"
 ```
 
-**Revision** là phiên bản bất biến của mô tả đề tài. Sau này thay đổi câu hỏi thì tạo revision mới, không sửa trực tiếp bản ghi đã có. Workspace trống chưa có bài là kết quả đúng của bài thực hành; số lượng đối tượng đã niêm phong có thể bằng 0.
+**Revision** là phiên bản đã lưu của mô tả đề tài. Khi thay câu hỏi, tạo revision mới để giữ lại lịch sử. Lệnh inspect cho phép đọc lại thông tin; verify kiểm tra dữ liệu đã có.
 
-## 4. Kết thúc và mở lại
+## 4. Mở lại và tiếp tục
 
-Đóng PowerShell không xóa dữ liệu. Lần sau mở PowerShell mới, khai báo lại hai biến rồi kiểm tra:
+Đóng PowerShell không xóa dữ liệu. Lần sau mở cửa sổ mới, đặt lại đường dẫn và chế độ tiếng Việt:
 
 ```powershell
-$rp = "$HOME\Downloads\.venv-reprovane\Scripts\reprovane.exe"
-$ws = "$HOME\Documents\Reprovane practice"
+$base = "$HOME\Documents\Reprovane"
+Set-Location "$base"
 $env:PYTHONUTF8 = "1"
-& $rp doctor --offline --workspace "$ws" --full
+$rp = ".\.venv-reprovane\Scripts\reprovane.exe"
+$ws = Join-Path $base "my-review"
+& $rp doctor --offline --workspace "$ws"
 & $rp --help
 ```
 
-Tiếp tục bằng [Hướng dẫn sử dụng](USER_GUIDE_vi.md). Trước dữ liệu thật, nhóm cần chốt câu hỏi, tiêu chí, người duyệt và giới hạn tìm kiếm. Công cụ không tự quyết định bài nào được đưa vào nghiên cứu.
-
-## Tạo wheel từ mã nguồn khi người phụ trách chưa cung cấp tệp
-
-Cần Git đã cài. Các lệnh dưới đây tải **main** từ kho chính thức đã đổi tên tại chỗ. Không cần đăng nhập để đọc kho công khai; đây là cách build từ mã nguồn, không phải cài một bản v2 đã phát hành.
-
-```powershell
-Set-Location "$HOME\Downloads"
-git clone --branch main --single-branch https://github.com/tvquynh/reprovane.git reprovane-source
-Set-Location .\reprovane-source
-python -m venv .venv-build
-.\.venv-build\Scripts\python.exe -m pip install -r requirements-ci.txt
-.\.venv-build\Scripts\python.exe -m build
-Copy-Item .\dist\reprovane-2.0.0-py3-none-any.whl "$HOME\Downloads\"
-Set-Location "$HOME\Downloads"
-```
-
-Nếu thư mục `reprovane-source` đã có, không xóa dữ liệu để chạy lại: chọn tên thư mục mới. Main có thể tiếp tục nhận cập nhật; khi cần tái lập, yêu cầu người phụ trách cung cấp commit SHA và SHA256 của wheel đã kiểm tra.
-
-## Trên Linux/macOS
-
-Các lệnh Reprovane có cùng tham số. Dùng `python3 -m venv .venv-reprovane`, `.venv-reprovane/bin/python -m pip install /path/to/reprovane-2.0.0-py3-none-any.whl`, rồi `.venv-reprovane/bin/reprovane --version`. Thay biến và đường dẫn PowerShell bằng cú pháp shell của bạn; không chép nguyên `& $rp` sang Bash.
+Đọc [Hướng dẫn sử dụng](USER_GUIDE_vi.md) để tiếp tục thu thập, theo dõi trích dẫn, sàng lọc và xuất tập bài. Con người quyết định đưa bài vào nghiên cứu; công cụ lưu bằng chứng và kết quả của quy trình đó.
 
 ## Khi bị lỗi
 
 | Hiện tượng | Cách xử lý |
 |---|---|
-| Không tìm thấy wheel hoặc exe | Kiểm tra Downloads và tên tệp; dùng `Test-Path` với đường dẫn cần tìm. |
-| Cài thư viện lỗi mạng | Kiểm tra mạng/proxy hoặc dùng wheelhouse đầy đủ; không bỏ phụ thuộc. |
-| Không tìm thấy lệnh sau khi mở cửa sổ mới | Khai báo lại `$rp`; dùng đường dẫn exe như trên. |
-| Báo writer đang hoạt động | Chờ tiến trình đang ghi kết thúc; không xóa tệp lock để ép chạy. |
-| Doctor báo database ABSENT | Kiểm tra `$ws` có đúng workspace đã init không; không init bừa vào thư mục dữ liệu cũ. |
-| Integrity verification failed | Dừng ghi dữ liệu, giữ nguyên thư mục, xem [vận hành và phục hồi](OPERATIONS.md). |
-| Windows báo Application Control chặn reprovane.exe | Dùng Python module như ví dụ dưới; không tắt chính sách bảo vệ máy. |
-| Lệnh lỗi khi in tên tiếng Việt | Đặt `$env:PYTHONUTF8 = "1"` trước khi chạy. Thao tác ghi có thể đã hoàn tất trước lỗi in; inspect bằng ID đã lưu trước khi tạo lại. |
+| Không tìm thấy Python hoặc tệp chương trình | Kiểm tra Python và thư mục đang đứng bằng `Get-Location`; quay lại thư mục `$base`. |
+| Cài đặt lỗi mạng | Kiểm tra mạng/proxy rồi chạy lại bước cài. Xem cách cài từ wheel nếu dùng tệp tải từ GitHub Releases. |
+| API key chưa được cấu hình | Tiếp tục bài ngoại tuyến; cấu hình key khi đến bước tìm kiếm trong User Guide. |
+| Writer đang hoạt động | Chờ chương trình đang dùng workspace kết thúc; không xóa tệp khóa để ép chạy. |
+| Doctor báo database ABSENT | Kiểm tra `$ws` có đúng thư mục đã khởi tạo không. |
+| Lệnh lỗi khi in tên tiếng Việt | Đặt `$env:PYTHONUTF8 = "1"` trước khi chạy; inspect trạng thái đã có trước khi tạo lại đối tượng. |
+| Integrity verification failed | Dừng ghi dữ liệu, giữ nguyên thư mục và xem [hướng dẫn phục hồi](OPERATIONS.md). |
 
-Nếu chính sách máy chặn launcher `.exe` mới, cùng CLI có thể chạy qua Python đã được cho phép:
+Nếu Application Control chặn launcher, dùng cùng CLI qua Python đã được cho phép:
 
 ```powershell
-$py = "$HOME\Downloads\.venv-reprovane\Scripts\python.exe"
+$py = ".\.venv-reprovane\Scripts\python.exe"
 & $py -m reprovane --version
 & $py -m reprovane doctor --offline
 ```
 
-Ở các bước còn lại, thay phần `& $rp` bằng `& $py -m reprovane`, giữ nguyên mọi tham số phía sau. Hai cách gọi đi vào cùng CLI; không cần thay đổi chính sách Application Control.
+Ở các bước còn lại, thay `& $rp` bằng `& $py -m reprovane`, giữ nguyên mọi tham số phía sau. Khi mở cửa sổ mới, quay lại `$base` và đặt lại `$py`.
 
-Khi nhờ hỗ trợ, gửi lệnh đã bỏ thông tin riêng tư, mã thoát và tên trường lỗi. Không gửi API key, cookie, cơ sở dữ liệu hay bài toàn văn vào issue công khai.
+Khi nhờ hỗ trợ, gửi tên lệnh, mã thoát và thông báo đã bỏ thông tin riêng tư. Không gửi API key, mật khẩu, cookie, cơ sở dữ liệu hoặc PDF nghiên cứu vào issue công khai.
+
+## Cài từ GitHub Releases hoặc dùng ngoại tuyến
+
+Nếu chọn wheel Reprovane từ [GitHub Releases](https://github.com/tvquynh/reprovane/releases), cài vào môi trường trên bằng lệnh sau, thay đường dẫn bằng nơi bạn lưu tệp:
+
+```powershell
+.\.venv-reprovane\Scripts\python.exe -m pip install "C:\Downloads\reprovane-2.0.0-py3-none-any.whl"
+```
+
+Máy không có mạng cần chuẩn bị cả các thư viện phụ thuộc. Xem [Operations](OPERATIONS.md) cho hướng dẫn cài ngoại tuyến, kiểm tra tệp và sao lưu.
+
+## Trên Linux/macOS
+
+Dùng `python3 -m venv .venv-reprovane`, `.venv-reprovane/bin/python -m pip install reprovane`, rồi `.venv-reprovane/bin/reprovane --version`. Các tham số CLI giữ nguyên; thay biến/đường dẫn PowerShell bằng cú pháp shell của bạn. Không chép nguyên `& $rp` sang Bash.
+
+## Advanced: build from source
+
+Dành cho người đã cài Git và muốn tự build. Chọn thư mục mới cho mã nguồn, rồi chạy:
+
+```powershell
+git clone --branch main --single-branch https://github.com/tvquynh/reprovane.git reprovane-source
+Set-Location .\reprovane-source
+python -m venv .venv-build
+.\.venv-build\Scripts\python.exe -m pip install build
+.\.venv-build\Scripts\python.exe -m build
+```
+
+Wheel nằm trong `dist`. Xem [Architecture](ARCHITECTURE.md) cho tài liệu kỹ thuật và [Operations](OPERATIONS.md) cho kiểm tra bản cài.

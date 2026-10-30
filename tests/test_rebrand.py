@@ -122,9 +122,20 @@ class TestPostRenameIdentity(unittest.TestCase):
     def test_main_source_and_unreleased_status(self):
         text = (ROOT/'README.md').read_text(encoding='utf-8')
         self.assertIn('https://github.com/tvquynh/reprovane', text)
-        self.assertIn('chưa tạo tag/release `v2.0.0`', text)
+        self.assertIn('first public release of Reprovane', text)
+        self.assertIn('pip install reprovane', text)
+        self.assertNotIn('ScholarFlow', text)
+        for detail in ('schema', 'migration hashes', 'PEP517', 'not published', 'rename pending'):
+            self.assertNotIn(detail, text)
+        status = (ROOT/'OPERATIONS.md').read_text(encoding='utf-8')
+        self.assertIn('chưa tạo tag/release v2.0.0', status)
         quick = (ROOT/'QUICKSTART_vi.md').read_text(encoding='utf-8')
         self.assertIn('git clone --branch main --single-branch https://github.com/tvquynh/reprovane.git', quick)
+        self.assertIn('python.exe -m pip install reprovane', quick)
+        self.assertLess(quick.index('python.exe -m pip install reprovane'), quick.index('## 3.'))
+        self.assertGreater(quick.index('## Advanced: build from source'), quick.index('## Trên Linux/macOS'))
+        for detail in ('nhánh đang chờ xét duyệt', 'Xin tệp wheel', 'schema 13', 'migration 0014'):
+            self.assertNotIn(detail, quick)
         self.assertEqual(self.identity_audit().stale_current_status(), [])
 
     def test_identity_audit_rejects_stale_runtime_url(self):

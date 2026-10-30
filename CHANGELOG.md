@@ -2,9 +2,14 @@
 
 ## 2.0.0
 
-Breaking identity rebrand: ScholarFlow → Reprovane. Distribution/import/CLI become `reprovane`; no old package shim or console alias is installed. Scientific semantics are unchanged; database schema remains 13 and SQL migrations 0001–0013 retain their exact bytes. Existing ScholarFlow 1.x schema13 workspaces remain compatible with unchanged database/CAS paths and the actual `.litintel-writer.lock` locator.
+First public Reprovane release, bringing reproducible literature discovery, human screening, and evidence management into one review workflow.
 
-Current beginner usage documentation and Quick Start are rewritten for Reprovane. The rebrand source is now on main and the repository has been renamed in place to tvquynh/reprovane. No v2.0.0 tag/release or PyPI/TestPyPI publication has occurred.
+- Collect literature from OpenAlex and expand searches through citations.
+- Keep venue evidence and human review decisions traceable.
+- Freeze a review corpus, organize eligible open-access full text, and track unresolved items in a manual queue.
+- Verify workspace and export integrity.
+
+Breaking package-name change: the distribution, Python import and CLI are now `reprovane`. Users of ScholarFlow 1.x can follow [the migration guide](MIGRATION_FROM_SCHOLARFLOW_1.md).
 
 ## 1.0.0
 
