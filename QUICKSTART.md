@@ -352,6 +352,9 @@ a deleted workspace.
 
 ## Troubleshooting
 
+IT means your organization's information technology support team. UTF-8 is a
+standard Unicode text encoding that keeps characters readable across systems.
+
 | Symptom | Meaning | What to do | What NOT to do |
 | --- | --- | --- | --- |
 | Python not recognized | The terminal cannot find Python. | Reopen PowerShell, try `py -3 --version`, revisit A1. | Do not install random suggested executables. |

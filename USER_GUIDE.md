@@ -264,6 +264,12 @@ Example labels below must actually exist in that plan.
 
 ```powershell
 & $rp screening export-review-packet --workspace "$ws" --run-id $screeningId --reviewer reviewer_1 --directory "review packet 1"
+```
+
+Read the exported packet and prepare `decisions.jsonl` according to its schema.
+Only after a human reviewer has completed that file, continue in PowerShell:
+
+```powershell
 & $rp screening import-decisions --workspace "$ws" --run-id $screeningId --reviewer reviewer_1 --input decisions.jsonl
 & $rp screening resolve --workspace "$ws" --run-id $screeningId
 ```
