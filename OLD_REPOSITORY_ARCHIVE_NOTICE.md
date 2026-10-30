@@ -1,7 +1,12 @@
-# Predecessor archive notice — unpublished draft
+# Historical predecessor archive notice
 
-For a human to publish only after ScholarFlow final acceptance:
+The predecessor `tvquynh/openalex-literature-intelligence` is archived for
+reproducibility and historical provenance. Development continues at
+https://github.com/tvquynh/reprovane. The successor was originally named ScholarFlow;
+the same successor repository was later renamed Reprovane.
 
-> This repository has been superseded by ScholarFlow. It remains archived for reproducibility and historical provenance. New development continues at https://github.com/tvquynh/scholarflow.
-
-This file is a draft. Bootstrap preparation does not create the successor repository, archive/delete the predecessor, change remotes, push, tag, merge, create a GitHub Release or upload to PyPI. The human workflow is to create/import/verify the new repository after acceptance, then archive the predecessor and add the successor notice, and release ScholarFlow 1.0.0 only when approved.
+Reprovane 2.0.0 is the first public Reprovane release. This file records the completed
+transition; it is not an unpublished draft or an instruction to create/publish a
+successor later. This documentation update does not edit the archived repository.
+See [Provenance](PROVENANCE.md) for dated milestones and
+[Quick Start](QUICKSTART.md) for current installation.

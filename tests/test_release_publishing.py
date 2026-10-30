@@ -58,16 +58,18 @@ class TestReleasePublishing(unittest.TestCase):
     def test_exact_artifact_handoff_and_no_checkout_in_publisher(self):
         text = WORKFLOW.read_text()
         build, publish = text.split('  publish-pypi:', 1)
-        paths = build.split('          path: |\n', 1)[1].split('          if-no-files-found:', 1)[0]
-        self.assertEqual(paths.split(), ['dist/reprovane-2.0.0-py3-none-any.whl', 'dist/reprovane-2.0.0.tar.gz'])
+        self.assertIn('path: dist/', build)
+        self.assertIn('run: python tools/validate_release.py', build)
+        self.assertIn("version = tag[1:]", publish)
+        self.assertIn("RELEASE_TAG: ${{ github.event.release.tag_name }}", publish)
         self.assertNotIn('actions/checkout', publish)
         self.assertEqual(text.count('name: reprovane-pypi-distributions'), 2)
         self.assertIn('assert {p.name for p in root.iterdir()} == expected', publish)
 
     def test_release_tag_matches_version_and_exact_event_commit(self):
         version = audit.source_version(ROOT)
-        self.assertEqual(version, '2.0.0')
-        audit.validate_tag('v2.0.0', 'refs/tags/v2.0.0', 'a'*40, 'a'*40, version)
+        self.assertEqual(version, '2.0.1')
+        audit.validate_tag('v2.0.1', 'refs/tags/v2.0.1', 'a'*40, 'a'*40, version)
         text = WORKFLOW.read_text()
         for field in ('RELEASE_TAG:', 'RELEASE_REF:', 'RELEASE_SHA:'):
             self.assertIn(field, text)

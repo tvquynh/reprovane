@@ -1,71 +1,110 @@
-# Vận hành Reprovane
+# Operating Reprovane safely
 
-Đọc [Quick Start](QUICKSTART_vi.md) để cài và [hướng dẫn sử dụng](USER_GUIDE_vi.md) để thực hiện đề tài. Reprovane dùng Python 3.11+, `requests>=2.31,<3`, `pypdf>=6,<7`. Mã nguồn bản 2.0.0 đã có trên main của kho chính thức `tvquynh/reprovane`; chưa tạo tag/release v2.0.0 và chưa phát hành trên PyPI/TestPyPI. Các ví dụ `reprovane` dưới đây cần môi trường đã cài được đưa vào PATH; người mới dùng đường dẫn `$rp` như Quick Start.
+Use [Quick Start](QUICKSTART.md) for installation and [User Guide](USER_GUIDE.md) for
+review work. Reprovane 2.0.0 is published. This guide was validated with Reprovane
+2.0.1. Installation version and data-format version are different concepts.
 
-## Nhận diện đúng thư mục và trạng thái
+## Find the right workspace
 
-Thư mục cài chứa chương trình; workspace chứa dữ liệu nghiên cứu. Đừng trộn chúng. Ghi lại đường dẫn workspace, phiên bản phần mềm, project/revision/run ID và hash manifest trong sổ theo dõi của nhóm. Trong PowerShell, `Get-Location` cho biết thư mục đang đứng; dùng đường dẫn tuyệt đối có dấu nháy để tránh thao tác nhầm.
+The software environment contains the program; the workspace holds research data.
+Record the full workspace address, software version, project/revision/run identifiers
+and manifest fingerprints in your team notebook. Keep quotes around addresses with
+spaces. The following terminal examples assume the installed launcher is available;
+beginners should use the direct paths from Quick Start instead.
 
-```text
+```bash
 reprovane --version
 reprovane doctor --offline --workspace "research workspace" --full
 reprovane verify --offline --workspace "research workspace"
 ```
 
-`--version` là 2.0.0; workspace hiện hành phải có schema 13, không có vi phạm khóa ngoại. `doctor --full` kiểm tra toàn bộ đối tượng đã niêm phong; doctor mặc định chỉ lấy mẫu một đối tượng mỗi nhóm. Workspace mới có sealed_count bằng 0 là bình thường. `database: ABSENT` yêu cầu kiểm tra đường dẫn, không phải lý do tự xóa/tạo lại dữ liệu. Trạng thái cấu hình chỉ báo biến hiện diện trong process, không đọc/in key Windows User environment.
+Doctor reports schema 13, pending migrations, foreign-key violations and sealed-object
+checks. `--full` checks all sealed objects; without it doctor samples one per family.
+Zero sealed objects is normal for an empty workspace. `database: ABSENT` means check
+the address first; it is not a reason to delete or initialize over real work.
+Read-only inspect/doctor/verify use a temporary database snapshot without changing
+source bytes. Configuration status reports only process-variable presence, not keys.
 
-## Quy trình và chỗ có mạng
+## Network and interruption
 
-| Nhóm lệnh | Công việc | Kết nối |
-|---|---|---|
-| workspace, project | Khởi tạo, mô tả đề tài, revision | Ngoại tuyến |
-| acquisition | Lấy/resume OpenAlex có giới hạn | Acquire/resume có mạng; inspect không |
-| resolution, venue-resolution | Phân giải bảo thủ, niêm phong bằng chứng | Ngoại tuyến |
-| scimago, venue-data | Đồng bộ nguồn ghim, import/resolve/query riêng từng provider | Sync cần mạng trừ chế độ offline/cache |
-| discovery, frontier | Nguồn gốc phát hiện, trích dẫn, mở rộng có giới hạn | Các bước mở rộng/chạy acquisition có mạng |
-| search-validation | So sánh chiến lược/sentinel | Ngoại tuyến trên acquisition có sẵn |
-| screening | Packet, quyết định của người, phân xử | Ngoại tuyến |
-| corpus | Đóng băng thành viên/metadata, export | Ngoại tuyến |
-| fulltext | Kế hoạch và thu nhận OA cho corpus | Discover/acquire có thể có mạng; verify/export không |
-| legacy | Audit/plan/migrate bản v4 sang workspace riêng | Ngoại tuyến |
+Workspace/project, resolution, screening, corpus verification and exports are offline.
+OpenAlex acquire/resume, citation expansion, provider sync and full-text discovery/
+acquisition may use the network. Search validation operates on existing evidence.
+Save each successful ID before the next operation. After interruption, inspect the
+saved run and use its supported resume/state transitions. Never assume a failed
+response means no object was created. See User Guide for acquisition's revision boundary.
 
-Chạy `reprovane <nhóm> --help`, rồi `reprovane <nhóm> <lệnh> --help` để xem tham số. Các nhãn `<...>` trong mô tả là chỗ cần thay, không chép dấu ngoặc vào PowerShell. Read-only inspect/verify/doctor dùng bản chụp DB tạm và không thay byte dữ liệu nguồn. API trực tiếp cần quản lý khóa như mục sau.
+## One writer at a time
 
-## Một writer và khóa trên đĩa
+The database remains `db/litintel.sqlite`; the actual writer lock is
+`.litintel-writer.lock`. These compatibility names are intentional. Do not rename
+them or introduce `.reprovane-writer.lock`. Historical references to
+`.scholarflow-writer.lock` did not match the shipped implementation.
 
-Khóa thực tế là **`.litintel-writer.lock`**, giữ nguyên từ wheel công khai ScholarFlow 1.0.0. Tài liệu cũ ghi `.scholarflow-writer.lock` là sai tên thực tế; không tạo thêm `.reprovane-writer.lock`. DB vẫn là `db/litintel.sqlite`. Đây là tên tương thích định dạng, không cần “dọn sạch” để đổi thương hiệu.
+The operating system holds the lock while a writer runs. A remaining lock file
+alone does not prove a writer is active; a crash releases the operating-system lock.
+If a writer is reported active, find that program and allow a normal shutdown.
+Do not delete the lock file or terminate unrelated processes to force access.
+Direct Python API writers must use `reprovane.operations.lock.workspace_lock()`.
+Do not run old and new writers concurrently. Network filesystems and writers that
+ignore this lock are not certified safe.
 
-CLI ghi giữ khóa của hệ điều hành; tệp tồn tại chỉ là metadata, không chứng minh còn writer. Khi tiến trình đóng/crash, OS nhả khóa nhưng tệp có thể còn. Nếu báo active writer, tìm và dừng đúng chương trình theo cách bình thường, chờ nó đóng rồi doctor lại. Không xóa lock hoặc kill hàng loạt tiến trình để ép chạy. API Python trực tiếp phải giữ `reprovane.operations.lock.workspace_lock()` bao quanh các bước ghi liên quan. Không chạy hai phiên bản cùng ghi một workspace. Ổ mạng hoặc writer cũ không tham gia cơ chế khóa không được chứng nhận an toàn.
+## Daily backup
 
-## Sao lưu thường ngày
+1. Stop every command, notebook or script writing the workspace; wait for completion.
+2. Copy the **entire workspace** to a separate dated folder using your file manager
+   or approved backup system. Keep database and all content-addressed storage (CAS)
+   together. CAS is the evidence store addressed by content fingerprints.
+3. Check the copy with full doctor and verify using its own quoted workspace address.
+   Save results and keep the original. Do not experiment on your only backup.
+4. Keep another protected copy on independent storage according to your team's policy.
 
-1. Dừng mọi CLI/script/notebook đang dùng workspace, chờ kết thúc ghi.
-2. Sao chép **toàn bộ workspace** sang thư mục riêng có ngày/giờ. Giữ `db/` và toàn bộ CAS cùng nhau; không chỉ sao chép tệp SQLite khi còn writer/WAL đang thay đổi.
-3. Chạy doctor/verify trên bản sao và lưu kết quả. Giữ bản gốc; đừng dùng bản sao duy nhất làm nơi thử nghiệm.
-4. Giữ ít nhất một bản ngoài ổ đang làm việc theo chính sách nhóm. Không đưa API key hay cấu hình riêng tư vào kho Git/ZIP chia sẻ.
+Do not copy just an actively changing SQLite database. A full backup may contain
+private metadata and full-text files, so restrict access and check redistribution rights.
 
-CAS là kho nội dung theo hash, chứa bằng chứng thô và artifact; mất CAS thì DB riêng lẻ không phục hồi đủ dữ liệu. Bản sao đầy đủ có thể chứa bài/bằng chứng nhạy cảm: kiểm soát quyền truy cập.
+## Before an upgrade and when restoring
 
-## Upgrade có backup và phục hồi
+Back up first. Install the new program in a separate environment, read the changelog
+and check a workspace copy before adopting it. The name change from ScholarFlow 1
+does not itself require a schema upgrade. Never promise automatic migration merely
+because pip installation succeeded.
 
-Đổi tên 1.0.0 → 2.0.0 không cần upgrade schema. Khi có nhu cầu upgrade thực sự, dùng ba thư mục tách rời, không lồng nhau:
+Where a real data upgrade is required, supported copy-on-write upgrade uses three
+separate, non-overlapping source/target/backup directories. Terminal syntax:
 
-```text
-reprovane doctor --offline --workspace "current workspace" --full
+```bash
 reprovane workspace upgrade --workspace "current workspace" --target "upgraded workspace" --backup "verified DB backup"
 reprovane verify --offline --workspace "upgraded workspace"
 ```
 
-Nguồn giữ nguyên. SQLite backup API tạo bản sao DB đầy đủ về trạng thái giao dịch; kiểm hash và migration history. Thư mục backup này **không nhân bản CAS**, còn target vận hành nhận CAS đã kiểm tra. Vì vậy giữ CAS gốc cùng DB backup. Private config/logs không được chuyển. Target thiếu upgrade manifest xác minh là chưa hoàn tất; không sử dụng như bản thành công. Replay chỉ dùng lại target nếu fingerprint/backup và mọi kiểm tra vẫn khớp; thay nguồn thì chọn target mới.
+This leaves the source intact. The database backup uses SQLite's backup API and
+validates hashes/history. The backup directory does **not** duplicate CAS; retain the
+original CAS with it. The operational target receives verified CAS. Private config
+and logs are not transferred. A target without a verified upgrade manifest is incomplete.
+Replay reuses a target only if fingerprints and all checks match; changed inputs need
+a new target. This is not a merge or generic folder-repair command.
 
-Cách phục hồi dễ nhất là dùng bản sao toàn workspace đã xác minh ở thư mục mới. Nếu người quản trị phục hồi từ DB backup riêng, đặt DB vào đúng `db/litintel.sqlite` của workspace mới và khôi phục CAS nguyên gốc tương ứng, rồi doctor/verify đầy đủ. Không đổi thành `db/reprovane.sqlite` hoặc chỉnh tay lịch sử migration. Nếu integrity vẫn lỗi, giữ nguyên bằng chứng và nhờ người phụ trách; không chạy ghi tiếp.
+The simplest restore is a verified full-workspace copy at a new location, with all
+writers stopped. If an administrator restores a database-only backup, the corresponding
+original CAS must also be restored at its expected paths. Check full doctor and verify
+before writing. Do not edit migration history, rename the database or reseal old objects.
 
-## Đọc lỗi và xin hỗ trợ
+## Integrity failure and safe reporting
 
-Root CLI trả 0 khi thao tác thành công; 2 khi cấu hình/validation/lock không hợp lệ; 3 khi integrity/history sai; 4 cho lỗi vận hành/transport ở root scimago; 5 cho lỗi thực thi migration. Các CLI được route giữ mã an toàn 2 của module; không có mã thoát chung thể hiện include/exclude khoa học. Xem trạng thái acquisition đã lưu khi gặp lỗi mạng; không in response riêng tư ra màn hình để đoán.
+Stop writes, retain the original and all evidence, and ask the technical lead to
+investigate a copy. Share version, operating system, sanitized command/error and exit
+code. Never post keys, Authorization headers, cookies, private paths, real databases
+or research PDFs. [Security](SECURITY.md) explains the reporting boundary.
 
-Trước khi gửi issue, chạy offline doctor, lưu version, tên lệnh, mã thoát và các trường trạng thái đã bỏ dữ liệu riêng. Không gửi key, header Authorization, cookie, đường dẫn tài khoản cá nhân, DB/PDF thật. Nếu thao tác tạo đối tượng đã thành công mà lệnh kế tiếp lỗi, inspect bằng ID có sẵn trước khi chạy lại create.
+Root command exit codes: 0 success; 2 configuration/validation/locking; 3 integrity/
+history failure; 4 operational/transport failure for root scimago; 5 migration
+execution failure. Routed command families retain their own safe error handling,
+usually code 2. An exit code does not indicate scientific include/exclude status.
 
-## Giới hạn tái lập
+## Reproducibility limits
 
-Suite E2E dùng ID và đồng hồ cố định **chỉ trong fixture**. Production vẫn sinh ID ngẫu nhiên, tham gia manifest; hai lần chạy độc lập không được hứa có cùng hash. Checksum kiểm nội dung so với hash đáng tin, không phải chữ ký nguồn, bảo đảm quyền sao chép hay chứng minh khoa học. Export từ chối symlink/tệp xung đột; dùng đích mới cho nội dung khác. UTF-8 cho JSON/JSONL/Markdown, CSV xác định dùng LF. Không sửa bytes đã niêm phong để “đẹp” hơn.
+Production identifiers are random and enter manifests; separate runs are not promised
+identical hashes. Fixed clocks/IDs belong to synthetic tests only. Checksums compare
+content against a trusted value, not scientific validity, publisher identity or rights.
+Exports reject symlinks and conflicting bytes; choose a new destination for different
+content. Use UTF-8 for JSON, JSONL and Markdown. Do not change sealed bytes for display.

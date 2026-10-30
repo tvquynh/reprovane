@@ -1,40 +1,64 @@
-# Chuyển từ ScholarFlow 1.x sang Reprovane 2.0.0
+# Moving from ScholarFlow 1.x to Reprovane
 
-Gói `scholarflow`, câu lệnh `scholarflow` và `import scholarflow` của bản 1 được thay bằng `reprovane`, `reprovane` và `import reprovane`. Bản 2 không cài gói tương thích hoặc bí danh lệnh cũ. Vì đây là thay đổi giao diện, version tăng thành **2.0.0**; schema vẫn **13**, không có migration 0014 cho đổi tên.
+This guide is for existing ScholarFlow users. New users should start with
+[Quick Start](QUICKSTART.md), then [User Guide](USER_GUIDE.md).
 
-## Trước khi chuyển
+The distribution `scholarflow`, command `scholarflow` and `import scholarflow` were
+replaced by `reprovane`, `reprovane` and `import reprovane` in 2.0.0. No compatibility
+package or old-command alias is installed. Reprovane 2.0.1 keeps that identity.
+Schema remains 13; no migration 0014 is needed for the rename or documentation update.
 
-1. Dừng mọi chương trình đang ghi workspace, gồm notebook/script Python. Không mở hai phiên bản cùng lúc để ghi.
-2. Giữ môi trường cài ScholarFlow 1 và bản wheel cũ để có thể kiểm tra lại. Các release `v1.0.0` và `v1.0.0-rc1` cùng tài sản cũ vẫn giữ nguyên.
-3. Sao lưu toàn bộ workspace sau khi dừng chương trình, gồm `db/`, dữ liệu CAS và các tệp kèm theo. Một bản sao DB đơn lẻ không chứa đủ PDF/bằng chứng CAS. Đặt bản sao ở vị trí khác, không chồng lên thư mục gốc.
-4. Chạy doctor đầy đủ bằng bản cũ, lưu kết quả và các hash quan trọng. Nếu đang có lỗi integrity, xử lý trước khi chuyển.
+## Before switching
 
-## Cài riêng và kiểm tra dữ liệu cũ
+1. Stop all workspace writers, including notebooks/scripts. Never run old and new
+   writers concurrently against the same workspace.
+2. Retain your old environment and package for reproducibility. Historical v1 stable
+   and release-candidate tags, releases and assets remain unchanged.
+3. Back up the entire stopped workspace, database and content-addressed storage (CAS)
+   together. A database alone does not preserve all evidence/PDF bytes.
+4. Check the old workspace fully, save results and trusted hashes, and investigate
+   any existing integrity problem before switching.
 
-Làm theo bước cài wheel trong [Quick Start](QUICKSTART_vi.md), dùng một venv mới. Trong PowerShell, thay đường dẫn workspace bằng bản sao kiểm thử của bạn:
+## Test a separate copy
+
+Install Reprovane in a new environment following Quick Start. The following
+PowerShell example assumes its software folder is current; `$ws` is your verified
+workspace copy, not your only original:
 
 ```powershell
-$rp = "$HOME\Downloads\.venv-reprovane\Scripts\reprovane.exe"
+$rp = ".\.venv-reprovane\Scripts\reprovane.exe"
+$py = ".\.venv-reprovane\Scripts\python.exe"
 $ws = "$HOME\Documents\existing-review-copy"
 & $rp --version
 & $rp doctor --offline --workspace "$ws" --full
 & $rp verify --offline --workspace "$ws"
 ```
 
-Kỳ vọng version `2.0.0`, schema `13`, không thêm migration và không có vi phạm khóa ngoại. Lệnh kiểm tra dùng bản chụp DB tạm; không chuyển đổi quyết định, không niêm phong lại run, không thay thành viên corpus hay xếp hạng PDF. Không cần chạy `legacy migrate` hoặc `workspace upgrade` chỉ vì đổi tên. `legacy migrate` dành cho dữ liệu tiền nhiệm v4, không dành cho workspace ScholarFlow 1.
+Expect the installed Reprovane version (2.0.1 in this guide), schema 13 and no
+pending migrations/foreign-key violations. On a launcher-restricted enterprise
+host, use `& $py -m reprovane` instead of `& $rp`, as explained in Quick Start.
+Checks use a temporary database snapshot, not a scientific-data conversion.
+No decisions are resealed, corpus memberships changed or PDFs reranked.
 
-## Các tên trên đĩa phải giữ nguyên
+Do not run legacy migration or workspace upgrade just for this name change.
+The legacy adapter handles predecessor v4 evidence, not ScholarFlow 1 workspaces.
 
-- `db/litintel.sqlite` vẫn là cơ sở dữ liệu.
-- `.litintel-writer.lock` vẫn là khóa writer thực tế của bản 1.0.0 và bản 2.0.0. Một số tài liệu cũ gọi nhầm là `.scholarflow-writer.lock`; mã và wheel công khai dùng `.litintel-writer.lock`. Không tự đổi tên hoặc tạo thêm `.reprovane-writer.lock`.
-- Đường dẫn CAS, các ID revision, manifest corpus/release và hash cũ giữ nguyên. Không tìm-thay tên sản phẩm trong DB/JSON đã niêm phong.
+## Retain compatibility paths
 
-Đây là các locator tương thích dữ liệu, không phải thương hiệu hiện hành. Một khóa OS duy nhất bảo vệ writer; xóa tệp khóa không phải cách mở khóa an toàn.
+Keep `db/litintel.sqlite`, `.litintel-writer.lock`, CAS paths, revision IDs, sealed
+manifests and old hashes. Earlier documentation incorrectly named the actual lock
+`.scholarflow-writer.lock`; the public implementation uses `.litintel-writer.lock`.
+Do not rename it or add `.reprovane-writer.lock`. Do not replace product names inside
+sealed database/JSON bytes. Removing a lock file is not a safe unlocking procedure.
 
-## Sửa script của bạn
+Update your own imports/command calls to `reprovane`, preserving all supported
+arguments. Do not change `OPENALEX_API_KEY`, `UNPAYWALL_EMAIL` or provider identifiers.
+Do not install an unrelated same-named registry package as an old-namespace shim.
 
-Đổi `from scholarflow...` thành `from reprovane...`, đổi lệnh gọi CLI và tên distribution trong công cụ cài đặt. Không đổi `OPENALEX_API_KEY`, `UNPAYWALL_EMAIL` hoặc các tên nhà cung cấp. Cài đúng wheel từ dự án này; không cài một gói trùng tên cũ trên registry để làm shim.
-
-Chỉ sau khi kiểm tra bản sao thành công mới áp dụng môi trường mới cho workspace chính. Nếu cần quay lại, dừng chương trình mới và dùng môi trường cũ với bản sao đã xác minh; không sửa lịch sử migration để ép mở dữ liệu.
-
-Kho chính thức hiện là [tvquynh/reprovane](https://github.com/tvquynh/reprovane), đã đổi tên tại chỗ và giữ nguyên lịch sử. GitHub hiện chuyển hướng URL cũ `tvquynh/scholarflow` sang kho này. Mã nguồn Reprovane 2.0.0 đã có trên main; chưa tạo tag/release v2.0.0 và chưa phát hành PyPI/TestPyPI. Chuyển hướng kho GitHub không chuyển hướng tên distribution/import/CLI cũ; tiếp tục dùng môi trường riêng như hướng dẫn ở trên.
+Adopt the new environment for real data only after copy checks succeed. To return
+to an old environment, stop the new writer and use a verified compatible backup;
+do not edit migration history. The canonical repository is
+[tvquynh/reprovane](https://github.com/tvquynh/reprovane). GitHub's old repository URL
+redirect does not redirect distribution/import/CLI names. Reprovane 2.0.0 is already
+published. Reprovane 2.0.1 preserves the workspace format and compatibility paths
+described in this guide.

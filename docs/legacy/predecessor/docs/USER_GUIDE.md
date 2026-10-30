@@ -1,8 +1,10 @@
+> Historical v4.1.0 reference only. Commands below require predecessor software; current users follow the [Reprovane Quick Start](https://github.com/tvquynh/reprovane/blob/main/QUICKSTART.md).
+
 # OpenAlex Literature Intelligence v4.1.0: Comprehensive User Guide
 
 Collect, enrich, screen, and audit scientific literature with OpenAlex and historical SCImago data (2010-2025): SJR, quartiles, source status, estimated APC, and a reproducible audit trail.
 
-Release 4.1.0, 28 October 2026. This Markdown file is generated from [OpenAlex_Literature_Intelligence_User_Guide.docx](OpenAlex_Literature_Intelligence_User_Guide.docx); both have the same content.
+Release 4.1.0, 28 October 2026. This Markdown file is generated from the original Word manual (not distributed here); both have the same content.
 
 ## Contents
 
@@ -103,7 +105,7 @@ The pipeline has three conceptual layers: input/configuration, core processing, 
 
 ### 3.1. End-to-end flow
 
-![Figure 1. End-to-end collection, enrichment, screening, and audit flow.](images/data_flow.png)
+The historical flow was collection -> enrichment -> machine filtering -> audit; the original illustration is not distributed here.
 
 Figure 1. End-to-end collection, enrichment, screening, and audit flow.
 
@@ -345,12 +347,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-If PowerShell blocks script execution, bypass it only for the current PowerShell process:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
-```
+Keep endpoint security policy unchanged. Activation is optional.
 
 If corporate policy prevents activation, call the venv interpreter directly:
 
@@ -908,7 +905,7 @@ The mirror operator adds the new annual file, updates manifest first_year/last_y
 | Symptom | Interpretation / action |
 |---|---|
 | python not recognized | Check python --version; reinstall Python/PATH; try py --version on Windows. |
-| PowerShell blocks Activate.ps1 | Use Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass for the current session, then activate again. |
+| PowerShell blocks Activate.ps1 | Keep endpoint policy unchanged; use the private environment Python directly or ask your administrator. |
 | Missing requests module | Ensure the correct venv is active and run python -m pip install -r requirements.txt. |
 | ERROR (config) | Check JSON syntax, allowed sections/keys, and data types. |
 | run says API key is missing | Copy config.example.json to config.json and fill openalex.api_key. |

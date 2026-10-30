@@ -1,6 +1,6 @@
 # Historical migration to ScholarFlow
 
-Historical reference: predecessor legacy v4.1.0 -> ScholarFlow 1.0.0. Commands below require the historical v1 environment. Current users start with MIGRATION_FROM_SCHOLARFLOW_1.md and USER_GUIDE_vi.md; use `reprovane legacy --help` for the retained v4 adapter.
+Historical reference: predecessor legacy v4.1.0 -> ScholarFlow 1.0.0. Commands below require the historical v1 environment. Current users start with MIGRATION_FROM_SCHOLARFLOW_1.md and USER_GUIDE.md; use `reprovane legacy --help` for the retained v4 adapter.
 
 Legacy baseline: f70796d1ef6003e24ce3afa1328088cc515dc0a0. Product version is reported by `scholarflow --version` (1.0.0).
 

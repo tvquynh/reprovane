@@ -10,4 +10,4 @@ global-exclude *.pyc *.sqlite *.db .env config.json
 include PROVENANCE.md OLD_REPOSITORY_ARCHIVE_NOTICE.md
 prune docs/legacy
 
-include QUICKSTART_vi.md USER_GUIDE_vi.md MIGRATION_FROM_SCHOLARFLOW_1.md THIRD_PARTY_DATA.md
+include QUICKSTART.md USER_GUIDE.md QUICKSTART_vi.md USER_GUIDE_vi.md MIGRATION_FROM_SCHOLARFLOW_1.md THIRD_PARTY_DATA.md

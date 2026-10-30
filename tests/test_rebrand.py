@@ -25,11 +25,11 @@ ROOT = Path(__file__).resolve().parents[1]
 class TestRebrandContract(unittest.TestCase):
     def test_installed_distribution_metadata(self):
         self.assertEqual(importlib.metadata.metadata('reprovane')['Name'], 'reprovane')
-        self.assertEqual(importlib.metadata.version('reprovane'), '2.0.0')
+        self.assertEqual(importlib.metadata.version('reprovane'), '2.0.1')
 
     def test_version_and_lineage(self):
         from reprovane._version import LEGACY_PREDECESSOR_VERSION
-        self.assertEqual(reprovane.__version__, '2.0.0')
+        self.assertEqual(reprovane.__version__, '2.0.1')
         self.assertEqual(LEGACY_PREDECESSOR_VERSION, '4.1.0')
 
     def test_no_old_namespace(self):
@@ -44,7 +44,7 @@ class TestRebrandContract(unittest.TestCase):
     def test_module_cli(self):
         result = subprocess.run([sys.executable, '-m', 'reprovane', '--version'],
                                 capture_output=True, text=True, check=True)
-        self.assertEqual(result.stdout, '2.0.0\n')
+        self.assertEqual(result.stdout, '2.0.1\n')
 
     def test_cli_help(self):
         with self.assertRaises(SystemExit), contextlib.redirect_stdout(io.StringIO()) as out:
@@ -97,7 +97,7 @@ class TestRebrandContract(unittest.TestCase):
     def test_beginner_guides_packaged(self):
         project = tomllib.loads((ROOT/'pyproject.toml').read_text())
         docs = project['tool']['setuptools']['data-files']['share/doc/reprovane']
-        for name in ('QUICKSTART_vi.md', 'USER_GUIDE_vi.md', 'MIGRATION_FROM_SCHOLARFLOW_1.md'):
+        for name in ('QUICKSTART.md', 'USER_GUIDE.md', 'QUICKSTART_vi.md', 'USER_GUIDE_vi.md', 'MIGRATION_FROM_SCHOLARFLOW_1.md'):
             self.assertIn(name, docs)
             self.assertTrue((ROOT/name).is_file())
 
@@ -128,12 +128,13 @@ class TestPostRenameIdentity(unittest.TestCase):
         for detail in ('schema', 'migration hashes', 'PEP517', 'not published', 'rename pending'):
             self.assertNotIn(detail, text)
         status = (ROOT/'OPERATIONS.md').read_text(encoding='utf-8')
-        self.assertIn('chưa tạo tag/release v2.0.0', status)
-        quick = (ROOT/'QUICKSTART_vi.md').read_text(encoding='utf-8')
-        self.assertIn('git clone --branch main --single-branch https://github.com/tvquynh/reprovane.git', quick)
+        self.assertIn('Reprovane 2.0.0 is published', status)
+        quick = (ROOT/'QUICKSTART.md').read_text(encoding='utf-8')
+        self.assertIn('https://www.python.org/downloads/', quick)
         self.assertIn('python.exe -m pip install reprovane', quick)
-        self.assertLess(quick.index('python.exe -m pip install reprovane'), quick.index('## 3.'))
-        self.assertGreater(quick.index('## Advanced: build from source'), quick.index('## Trên Linux/macOS'))
+        self.assertLess(quick.index('python.exe -m pip install reprovane'), quick.index('### A3.'))
+        self.assertIn('## B. macOS', quick)
+        self.assertIn('## C. Linux', quick)
         for detail in ('nhánh đang chờ xét duyệt', 'Xin tệp wheel', 'schema 13', 'migration 0014'):
             self.assertNotIn(detail, quick)
         self.assertEqual(self.identity_audit().stale_current_status(), [])

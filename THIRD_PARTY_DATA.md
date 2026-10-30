@@ -1,9 +1,25 @@
-# Dữ liệu từ bên thứ ba
+# Third-party data and redistribution
 
-Reprovane xử lý metadata OpenAlex và các bằng chứng nguồn xuất bản được cấu hình, gồm SCImago, Scopus, Web of Science; fulltext có thể dùng Unpaywall khi được bật. Dự án không đóng gói bộ CSV SCImago hay PDF nghiên cứu thật trong wheel/sdist.
+OpenAlex supplies literature metadata. SCImago supplies ranking/presence evidence;
+Scopus supplies membership/status evidence; Web of Science supplies collection
+evidence. These meanings stay separate, with their own snapshots and scope.
+Unpaywall may supply open-access locations when enabled with a contact email.
+Reprovane does not package real research PDFs or provider venue datasets in its
+wheel or source distribution.
 
-Người dùng cần ghi nhà cung cấp, snapshot/ref/commit, checksum và thời điểm của bằng chứng. Một checksum hợp lệ không biến một mirror thành nguồn có thẩm quyền và không cho phép tự suy diễn membership/ranking ngoài phạm vi dữ liệu. Bộ đồng bộ GitHub dùng nguồn ghim theo hợp đồng [pinned mirror](docs/architecture/pinned_github_mirror_sync.md); đọc `reprovane scimago --help` và `reprovane venue-data --help` cho CLI hiện hành.
+Record provider, snapshot, reference/commit, checksum and retrieval time. A valid
+checksum shows consistency with an expected file; it does not make a mirror
+authoritative or justify extrapolating ranking/membership beyond the data.
+The [pinned-mirror contract](docs/architecture/pinned_github_mirror_sync.md) describes
+the existing GitHub source pinning model. [User Guide](USER_GUIDE.md) explains how
+provider evidence differs from human decisions and full-text artifacts.
 
-Trước khi phân phối lại dữ liệu, metadata, corpus hoặc PDF, người phụ trách phải xem điều khoản, giấy phép, nghĩa vụ ghi nguồn và giới hạn phân phối của từng nhà cung cấp/tác phẩm. Công cụ chạy được hoặc tải thành công không phải giấy phép phân phối. Nếu chưa rõ quyền, chỉ chia sẻ báo cáo/manifest phù hợp chính sách nhóm và nhờ người phụ trách kiểm tra. Không công khai toàn bộ workspace, key hoặc URL riêng tư.
+Before sharing metadata, datasets, a corpus or PDFs, the review lead must check
+each source's applicable terms, license, attribution and redistribution limits.
+A successful download is not a license to redistribute. When rights are unclear,
+share only permitted reports/manifests and seek review from the responsible person.
+Do not publish a whole workspace, private key, contact value or private URL.
 
-Tài liệu dưới `docs/legacy/` mô tả các mirror/config/CLI của tiền nhiệm; không áp dụng tự động các cờ cũ vào Reprovane. [User Guide](USER_GUIDE_vi.md) giải thích sự khác biệt giữa bằng chứng nguồn, quyết định sàng lọc và artifact toàn văn.
+Historical documentation in [docs/legacy](docs/legacy/README.md) describes predecessor
+mirrors/configuration/commands. Those historical flags do not automatically apply
+to the current program. Do not use missing full text to exclude a study from the corpus.

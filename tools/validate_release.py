@@ -5,6 +5,7 @@ from email.parser import Parser
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import tarfile
@@ -24,12 +25,34 @@ def source_version(root):
     tree = ast.parse((root/'reprovane/_version.py').read_text(encoding='utf-8'))
     values = [ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
               and any(isinstance(t, ast.Name) and t.id == '__version__' for t in n.targets)]
-    if values != ['2.0.0']:
+    if len(values) != 1:
         raise ValueError('Unexpected release version')
-    return values[0]
+    return stable_version(values[0])
+
+
+def stable_version(version):
+    """Canonical numeric PEP 440 releases; no pre/dev/post/local/epoch aliases."""
+    if not isinstance(version, str) or not re.fullmatch(r'(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*', version):
+        raise ValueError('Expected a canonical stable release version')
+    return version
+
+
+def expected_distributions(version):
+    stable_version(version)
+    return {'reprovane-'+version+'-py3-none-any.whl', 'reprovane-'+version+'.tar.gz'}
+
+
+def validate_handoff(directory, version):
+    expected = expected_distributions(version)
+    if {p.name for p in directory.iterdir()} != expected:
+        raise ValueError('Unexpected distribution handoff')
+    if any(not p.is_file() or p.is_symlink() for p in directory.iterdir()):
+        raise ValueError('Unsafe distribution file')
+    return expected
 
 
 def validate_tag(tag, ref, event_sha, checkout_sha, version):
+    stable_version(version)
     if tag != 'v'+version or ref != 'refs/tags/'+tag or not event_sha or event_sha != checkout_sha:
         raise ValueError('Release tag/version/ref/commit mismatch')
 
@@ -44,9 +67,7 @@ def metadata(text, version):
 
 
 def validate_archives(directory, version, expected_migrations):
-    expected = {'reprovane-'+version+'-py3-none-any.whl', 'reprovane-'+version+'.tar.gz'}
-    if {p.name for p in directory.iterdir()} != expected:
-        raise ValueError('Unexpected distribution handoff')
+    expected = validate_handoff(directory, version)
     for filename in sorted(expected):
         path = directory/filename
         if not path.is_file() or path.is_symlink():

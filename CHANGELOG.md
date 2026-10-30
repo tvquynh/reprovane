@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+- Fix documentation links in the package description shown on PyPI.
+- Make the public documentation English-only and add a beginner-friendly setup guide.
+- Generalize the secure release workflow for maintenance versions.
+
 ## 2.0.0
 
 First public Reprovane release, bringing reproducible literature discovery, human screening, and evidence management into one review workflow.
