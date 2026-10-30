@@ -1,3 +1,5 @@
+> Historical v4.1.0 reference only. Commands below require predecessor software; current users follow the [Reprovane Quick Start](https://github.com/tvquynh/reprovane/blob/main/QUICKSTART.md).
+
 # Test report - OpenAlex Literature Intelligence v4.1.0
 
 Release date: 2026-10-28. 4.1.0 adds `--admit-tier`, which admits the venues of chosen tiers in your list to the main corpus even when the venue filters would exclude them, and a list of preprints for manual screening. 4.0.0 changed the default `--quartile-basis` from `publication` to `latest`, so a quartile filter keeps the newest papers when their venue qualifies. 3.3.0 reported papers published after the last SCImago year precisely when a publication-basis quartile filter excludes them: an extra exclusion reason, a console warning and summary diagnostics. 3.2.0 added `run --search-field` (match queries against titles and abstracts only). 3.1.1 fixed one `fetch-oa` defect found in real use (doi.org paused after a redirect to a bot check). 3.1.0 added quality signals with user-defined venue tiers, and the `fetch-oa` command (open-access full text). The automated tests below were rerun with the 4.1.0 code.

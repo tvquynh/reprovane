@@ -1,11 +1,42 @@
-# Kiến trúc Reprovane
+# Reprovane architecture
 
-Product version ở `reprovane/_version.py`: **2.0.0**. Database schema: **13**. Tên gói không phải phiên bản định dạng dữ liệu.
+Reprovane keeps evidence from each review stage separate so a later decision can be
+traced back to its inputs. Begin with [Quick Start](QUICKSTART.md) and [User Guide](USER_GUIDE.md);
+this page is the technical map, not a prerequisite for a first project.
 
-Luồng chính: project/revision → acquisition/snapshot/record → typed observations → publication/venue resolution → discovery → frontier/search validation → human screening/adjudication → immutable corpus → OA fulltext. Mỗi lớp giữ bằng chứng và tham chiếu lớp trước; một bước tìm thấy dữ liệu không tự cấp quyền quyết định cho bước sau.
+Product version is **2.0.1**, from `reprovane/_version.py`. Database schema remains
+**13**. A software version is not a database-format version.
 
-Người dùng bắt đầu bằng [Quick Start](QUICKSTART_vi.md) và [User Guide](USER_GUIDE_vi.md). Các tài liệu trong [docs/architecture](docs/architecture/) là hợp đồng kỹ thuật: [persistence](docs/architecture/persistence_foundation.md), [observations](docs/architecture/typed_observations.md), [publication identity](docs/architecture/publication_identity_resolution.md), [venue resolution](docs/architecture/venue_resolution_scimago.md), [provider intelligence](docs/architecture/scopus_wos_venue_intelligence.md), [acquisition](docs/architecture/openalex_acquisition_migration.md), [discovery](docs/architecture/discovery_provenance_citation_expansion.md), [frontier/search validation](docs/architecture/frontier_policy_search_validation.md), [screening](docs/architecture/screening_separation.md), [corpus](docs/architecture/immutable_corpus_release.md), [fulltext](docs/architecture/fulltext_acquisition.md) và [pinned mirror](docs/architecture/pinned_github_mirror_sync.md).
+The flow is project/revision -> acquisition/snapshot/provider record -> typed
+observations -> publication/venue resolution -> discovery -> frontier/search
+validation -> human screening/adjudication -> immutable corpus -> open-access
+full text. Each stage preserves evidence and references to earlier stages.
+Finding a record does not grant authority to include a study.
 
-Phân giải không dùng fuzzy title để tự hợp nhất bài mơ hồ. SCImago, Scopus, WoS có ngữ nghĩa riêng. AI/OCR không sở hữu quyền quyết định trước khi đóng băng; screening thuộc con người. Fulltext failure không thay membership. Các thuật toán, quy tắc phiên bản PDF, SSRF, CAS, hash và 13 migration SQL không đổi trong rebrand.
+## Technical contracts
 
-Adapter legacy v4 chỉ đưa bằng chứng lịch sử vào ngữ cảnh riêng, không biến phân loại máy cũ thành quyết định screening/corpus hiện hành. [Migration hiện tại](MIGRATION_FROM_SCHOLARFLOW_1.md) khác với [tài liệu chuyển tiếp lịch sử](MIGRATION_TO_SCHOLARFLOW.md). Các locator `db/litintel.sqlite` và `.litintel-writer.lock` giữ nguyên để workspace/schema13 và khóa writer tương tác được. Xem [Operations](OPERATIONS.md) cho snapshot đọc, backup, upgrade và giới hạn filesystem.
+- [Persistence](docs/architecture/persistence_foundation.md)
+- [Typed observations](docs/architecture/typed_observations.md)
+- [Publication identity](docs/architecture/publication_identity_resolution.md)
+- [Venue resolution](docs/architecture/venue_resolution_scimago.md)
+- [Provider intelligence](docs/architecture/scopus_wos_venue_intelligence.md)
+- [Acquisition](docs/architecture/openalex_acquisition_migration.md)
+- [Discovery](docs/architecture/discovery_provenance_citation_expansion.md)
+- [Frontier/search validation](docs/architecture/frontier_policy_search_validation.md)
+- [Screening](docs/architecture/screening_separation.md)
+- [Corpus](docs/architecture/immutable_corpus_release.md)
+- [Full text](docs/architecture/fulltext_acquisition.md)
+- [Pinned mirror](docs/architecture/pinned_github_mirror_sync.md)
+
+No fuzzy-title rule automatically merges ambiguous publications. SCImago, Scopus
+and Web of Science semantics remain separate. Human reviewers control screening;
+AI/OCR (artificial intelligence/optical character recognition) do not own inclusion.
+Full-text failure cannot change corpus membership. Security, content-addressed
+storage, version policy and migration bytes are unchanged by documentation work.
+
+The legacy v4 adapter places historical evidence in a separate context; old machine
+classifications do not become modern human screening decisions or corpus members.
+The [current migration guide](MIGRATION_FROM_SCHOLARFLOW_1.md) differs from the
+[historical transition record](MIGRATION_TO_SCHOLARFLOW.md). `db/litintel.sqlite`
+and `.litintel-writer.lock` remain compatibility locators. [Operations](OPERATIONS.md)
+describes snapshots, backup, upgrade and filesystem limits.

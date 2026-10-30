@@ -34,6 +34,6 @@ version = {attr = "reprovane._version.__version__"}
 "reprovane.core" = ["migrations/*.sql"]
 
 [tool.setuptools.data-files]
-"share/doc/reprovane" = ["README.md", "QUICKSTART_vi.md", "USER_GUIDE_vi.md", "MIGRATION_FROM_SCHOLARFLOW_1.md", "THIRD_PARTY_DATA.md", "MIGRATION_TO_SCHOLARFLOW.md", "OPERATIONS.md", "SECURITY.md", "ARCHITECTURE.md", "CHANGELOG.md", "LICENSE", "PROVENANCE.md"]
+"share/doc/reprovane" = ["README.md", "QUICKSTART.md", "USER_GUIDE.md", "QUICKSTART_vi.md", "USER_GUIDE_vi.md", "MIGRATION_FROM_SCHOLARFLOW_1.md", "THIRD_PARTY_DATA.md", "MIGRATION_TO_SCHOLARFLOW.md", "OPERATIONS.md", "SECURITY.md", "ARCHITECTURE.md", "CHANGELOG.md", "LICENSE", "PROVENANCE.md"]
 
 "share/doc/reprovane/architecture" = ["docs/architecture/*.md"]

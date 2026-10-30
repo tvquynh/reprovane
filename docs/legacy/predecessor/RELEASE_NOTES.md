@@ -1,3 +1,5 @@
+> Historical v4.1.0 reference only. Commands below require predecessor software; current users follow the [Reprovane Quick Start](https://github.com/tvquynh/reprovane/blob/main/QUICKSTART.md).
+
 # Release notes - OpenAlex Literature Intelligence
 
 - **Version:** 4.1.0

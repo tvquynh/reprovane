@@ -1,17 +1,53 @@
-# Bảo mật khi dùng Reprovane
+# Security and privacy
 
-## Người sử dụng cần làm gì?
+## Protect credentials and review data
 
-Chỉ cài wheel đúng nguồn và đối chiếu hash. Để `OPENALEX_API_KEY` và `UNPAYWALL_EMAIL` trong runtime/User environment; không ghi giá trị vào source, plan, workspace, báo cáo hoặc URL chia sẻ. Doctor chỉ báo có/không trong process. Không gửi key, mật khẩu, header Authorization, cookie, hồ sơ trình duyệt hoặc DB/PDF thật lên issue công khai. Khi cần báo lỗi nhạy cảm, trước hết liên hệ người duy trì để thống nhất kênh riêng; không giả định dự án có hộp thư bảo mật chuyên dụng.
+Install published Reprovane from PyPI or a separately reviewed candidate supplied
+through the project's accepted process. Keep `OPENALEX_API_KEY` and `UNPAYWALL_EMAIL`
+in approved runtime/environment configuration. Never put actual values in source,
+plans, workspaces, reports or shared URLs. Doctor reports presence, not key values.
+An environment variable is configuration, not encrypted storage; restrict access
+to the account running the program. See [Quick Start](QUICKSTART.md) and
+[User Guide](USER_GUIDE.md) for safe examples using placeholders.
 
-Đọc [Quick Start](QUICKSTART_vi.md) để cài, [User Guide](USER_GUIDE_vi.md) để thao tác và [Operations](OPERATIONS.md) để sao lưu. Dừng tiến trình ghi trước khi sao lưu; giữ DB và CAS. Không sửa SQL/manifest, xóa lock để vượt kiểm tra hoặc ép nhận PDF bị từ chối.
+For a public issue, share version, operating system, sanitized command, exit code
+and sanitized error. Do not upload passwords, API keys, cookies, Authorization
+headers, browser profiles, private signed URLs, databases or restricted PDFs.
+For a sensitive defect, contact the maintainer through an agreed private channel
+before disclosing details. Do not assume a dedicated security mailbox exists.
 
-## Ranh giới thu nhận toàn văn
+Stop writers before backing up and retain the entire database and evidence store.
+Control who can read workspace copies; they may contain private review data.
+[Operations](OPERATIONS.md) describes backup/restore and writer locks. Do not manually
+edit databases/manifests or remove lock files to get past a failed check.
 
-Fulltext transport ghim IP công khai đã phân giải, xác thực TLS theo hostname gốc, kiểm tra redirect và giới hạn request/byte/retry/redirect. PDF phải đạt kiểm tra cấu trúc. Mặc định từ chối submitted/unknown version, không scrape landing page, không vượt paywall/anti-bot, không dùng AI/OCR dự phòng. Không tự động hóa login/SSO/cookie của cơ quan. URL và metadata nguồn là dữ liệu chưa đáng tin. Response chứa bí mật nhận diện được hoặc signed URL secret bị từ chối. Heuristic bảo mật không bảo đảm nhận diện mọi bí mật chưa biết.
+## Full-text and legal boundary
 
-## Ranh giới dữ liệu và filesystem
+Only eligible open-access files are acquired within the frozen policy. Do not
+bypass paywalls, CAPTCHA or anti-bot checks, or automate institutional login,
+single sign-on or cookies. Leave unresolved items in the manual queue. Manual
+PDF ingest is not implemented; never force a rejected PDF into a sealed run.
+Successful access is not redistribution permission; see [Third-party data](THIRD_PARTY_DATA.md).
 
-Legacy migration chỉ nhận thư mục thường, có giới hạn, copy-on-write và từ chối symlink; không giải nén archive hay thực thi pickle/eval/payload. Secret/config/log của legacy được kiểm kê bằng hash thay vì sao chép. SQL bind tham số; tên bảng/cột động từ allowlist nội bộ. CLI writer dùng khóa OS; API trực tiếp phải tham gia cùng khóa. Export bất biến từ chối symlink/bytes xung đột. Filesystem có tiến trình đối kháng đồng thời và giới hạn CPU/RAM của parser PDF không được chứng nhận. DB-only backup cần CAS nguyên gốc riêng để khôi phục đủ.
+URLs, metadata and files from providers are untrusted inputs. Full-text transport
+pins resolved public IP addresses, validates Transport Layer Security (TLS) against
+the original hostname, checks redirects and bounds requests/bytes/retries/redirects.
+PDF files must pass structural checks. Submitted/unknown versions are rejected by
+default; no landing-page scraping, artificial-intelligence or optical-character-
+recognition fallback is used. Recognized secret-bearing responses and signed URLs
+are refused. Heuristics cannot recognize every previously unknown secret.
 
-Reprovane không cài CLI lịch sử hoặc shim package cũ. Mã execution tiền nhiệm chỉ ở tham chiếu test, không nằm trong wheel/sdist. Checksum chứng minh nhất quán với hash đáng tin, không xác thực nhà xuất bản hoặc quyền phân phối. Xem [Third-party data](THIRD_PARTY_DATA.md) trước khi chia sẻ dữ liệu.
+## Filesystem and API boundary
+
+Legacy migration accepts bounded ordinary directories, refuses symlinks and uses
+copy-on-write. It does not extract archives or execute pickle/eval/payloads. Legacy
+secrets/config/logs are inventoried by hash instead of being copied. Database values
+use bound parameters; dynamic table/column names come from internal allowlists.
+CLI writers use the operating-system lock; direct API writers must participate in
+the same lock. Immutable exports refuse symlinks and conflicting bytes.
+
+Adversarial concurrent filesystem mutation and PDF-parser CPU/memory isolation are
+not certified. A database-only backup needs corresponding CAS evidence separately.
+Old execution packages/CLI shims are not installed. Historical reference code exists
+only in tests and is excluded from distributions. A checksum alone does not
+authenticate a publisher; verify package provenance and trusted origin separately.

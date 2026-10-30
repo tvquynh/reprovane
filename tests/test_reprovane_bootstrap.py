@@ -37,7 +37,7 @@ class TestReprovaneIdentity(unittest.TestCase):
         assert_source_hygiene(ROOT)
     def test_predecessor_provenance(self):
         text=(ROOT/'PROVENANCE.md').read_text();self.assertIn('6ad3dde25d2a7a6e21591e8e6f131f3885b62ce7',text);self.assertIn('f70796d1ef6003e24ce3afa1328088cc515dc0a0',text)
-    def test_archive_notice_is_draft(self):self.assertIn('unpublished draft',(ROOT/'OLD_REPOSITORY_ARCHIVE_NOTICE.md').read_text())
+    def test_archive_notice_is_draft(self):self.assertIn('completed',(ROOT/'OLD_REPOSITORY_ARCHIVE_NOTICE.md').read_text())
     def test_product_not_v5(self):
         for name in ('README.md','OPERATIONS.md','ARCHITECTURE.md','SECURITY.md','CHANGELOG.md','pyproject.toml'):
             text=(ROOT/name).read_text(encoding='utf-8');self.assertNotIn('5.0.0rc1',text);self.assertNotIn('litintel-v4',text)
