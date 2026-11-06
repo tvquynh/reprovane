@@ -1,0 +1,14 @@
+include LICENSE README.md CHANGELOG.md SECURITY.md ARCHITECTURE.md MIGRATION_TO_SCHOLARFLOW.md OPERATIONS.md
+recursive-include reprovane/core/migrations *.sql
+prune tests
+prune data
+prune cache
+prune dist
+prune build
+global-exclude *.pyc *.sqlite *.db .env config.json
+
+include PROVENANCE.md OLD_REPOSITORY_ARCHIVE_NOTICE.md
+prune docs/legacy
+
+include QUICKSTART.md USER_GUIDE.md QUICKSTART_vi.md USER_GUIDE_vi.md MIGRATION_FROM_SCHOLARFLOW_1.md THIRD_PARTY_DATA.md
+include docs/PDF_ACQUISITION_USER_GUIDE.md docs/PDF_ACQUISITION_ARCHITECTURE.md docs/PDF_LEGACY_PARITY_MATRIX.md

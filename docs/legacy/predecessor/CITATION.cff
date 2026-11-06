@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+title: OpenAlex Literature Intelligence
+message: "If you use this tool, please cite it as below."
+type: software
+authors:
+  - family-names: Trinh
+    given-names: Van-Quynh
+    orcid: "https://orcid.org/0009-0006-0514-6123"
+    affiliation: Posts and Telecommunications Institute of Technology (PTIT)
+version: 4.1.0
+date-released: "2026-10-28"
+license: MIT
+doi: 10.5281/zenodo.23680134
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23680134
+    description: Concept DOI (all versions)
+  - type: doi
+    value: 10.5281/zenodo.23680135
+    description: DOI for version 3.0.5
+  - type: doi
+    value: 10.5281/zenodo.23691209
+    description: DOI for version 3.2.0
+  - type: doi
+    value: 10.5281/zenodo.23694624
+    description: DOI for version 3.3.0
+  - type: doi
+    value: 10.5281/zenodo.23714966
+    description: DOI for version 4.0.0
+  - type: doi
+    value: 10.5281/zenodo.23727804
+    description: DOI for version 4.1.0
+repository-code: "https://github.com/tvquynh/openalex-literature-intelligence"
+abstract: >-
+  Command-line tool that builds an auditable literature corpus: OpenAlex discovery,
+  SCImago 2010-2025 venue enrichment (SJR, quartiles, categories, estimated APC) at the
+  publication year and the latest snapshot, policy-based screening of a main corpus with
+  a recorded reason for every exclusion, retraction flags and venue tiers from a
+  user-maintained list, and polite download of open-access full text.
+keywords:
+  - openalex
+  - scimago
+  - literature-review
+  - systematic-review
+  - bibliometrics
+  - research-reproducibility

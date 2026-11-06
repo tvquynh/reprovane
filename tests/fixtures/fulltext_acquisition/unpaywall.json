@@ -1,0 +1,18 @@
+{
+  "doi": "10.1234/test1",
+  "is_oa": true,
+  "best_oa_location": {
+    "host_type": "publisher",
+    "url_for_pdf": "https://papers.example.org/a.pdf",
+    "version": "publishedVersion",
+    "license": "cc-by"
+  },
+  "oa_locations": [
+    {
+      "host_type": "repository",
+      "url_for_pdf": "https://papers.example.org/accepted.pdf",
+      "version": "acceptedVersion",
+      "license": null
+    }
+  ]
+}

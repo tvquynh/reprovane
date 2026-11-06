@@ -1,0 +1,160 @@
+"""Breaking interface rebrand: no aliases, immutable storage and frozen v1 science."""
+import contextlib
+import hashlib
+import importlib.metadata
+import importlib.util
+import io
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import tomllib
+import unittest
+
+import reprovane
+from reprovane.__main__ import main
+from reprovane.core.migrations import MIGRATION_DIR
+from reprovane.operations.lock import workspace_lock, lock_diagnosis
+from reprovane.operations.workspace import initialize, doctor
+from reprovane_bootstrap_fixtures import reprovane_e2e
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class TestRebrandContract(unittest.TestCase):
+    def test_installed_distribution_metadata(self):
+        self.assertEqual(importlib.metadata.metadata('reprovane')['Name'], 'reprovane')
+        self.assertEqual(importlib.metadata.version('reprovane'), '2.0.1')
+
+    def test_version_and_lineage(self):
+        from reprovane._version import LEGACY_PREDECESSOR_VERSION
+        self.assertEqual(reprovane.__version__, '2.0.1')
+        self.assertEqual(LEGACY_PREDECESSOR_VERSION, '4.1.0')
+
+    def test_no_old_namespace(self):
+        self.assertFalse((ROOT/'scholarflow').exists())
+        self.assertIsNone(importlib.util.find_spec('scholarflow'))
+
+    def test_only_new_distribution_entrypoint(self):
+        scripts = {e.name: e.value for e in importlib.metadata.distribution('reprovane').entry_points
+                   if e.group == 'console_scripts'}
+        self.assertEqual(scripts, {'reprovane': 'reprovane.__main__:main'})
+
+    def test_module_cli(self):
+        result = subprocess.run([sys.executable, '-m', 'reprovane', '--version'],
+                                capture_output=True, text=True, check=True)
+        self.assertEqual(result.stdout, '2.0.1\n')
+
+    def test_cli_help(self):
+        with self.assertRaises(SystemExit), contextlib.redirect_stdout(io.StringIO()) as out:
+            main(['--help'])
+        self.assertIn('Reprovane', out.getvalue())
+
+    def test_sql_exact_v1_baseline(self):
+        expected = json.loads((ROOT/'tests/fixtures/bootstrap/migration_hashes.json').read_text())
+        actual = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in MIGRATION_DIR.glob('*.sql')}
+        # Accepted v1 migrations stay byte-identical; schema 14 is a pinned append-only addition.
+        self.assertEqual({k: v for k, v in actual.items() if k in expected}, expected)
+        self.assertEqual(actual, json.loads((ROOT/'tests/fixtures/bootstrap/migration_hashes_schema14.json').read_text()))
+
+    def test_schema14_is_the_only_addition(self):
+        self.assertEqual([p.name for p in MIGRATION_DIR.glob('0014*')], ['0014_pdf_acquisition.sql'])
+        self.assertFalse(list(MIGRATION_DIR.glob('0015*')))
+
+    def test_read_existing_workspace_without_byte_changes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            initialize(root)
+            def state():
+                return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                        for p in root.rglob('*') if p.is_file()}
+            before = state()
+            result = doctor(root, full=True)
+            self.assertEqual(result['schema_version'], 14)
+            self.assertEqual(result['pending'], [])
+            self.assertEqual(state(), before)
+            self.assertTrue((root/'db/litintel.sqlite').is_file())
+
+    def test_single_compatible_os_lock(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            with workspace_lock(root):
+                self.assertTrue((root/'.litintel-writer.lock').is_file())
+                self.assertEqual(lock_diagnosis(root), 'ACTIVE_WRITER_OR_INACCESSIBLE')
+                self.assertFalse((root/'.reprovane-writer.lock').exists())
+                self.assertFalse((root/'.scholarflow-writer.lock').exists())
+
+    def test_identity_audit_has_no_stale_current_identity(self):
+        spec = importlib.util.spec_from_file_location('identity_audit', ROOT/'tools/audit_identity.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        rows = module.audit()
+        self.assertTrue(rows)
+        self.assertFalse([r for r in rows if r['category'].startswith('BUG/')])
+
+    def test_dependency_ranges_unchanged(self):
+        project = tomllib.loads((ROOT/'pyproject.toml').read_text())['project']
+        self.assertEqual(project['dependencies'], ['requests>=2.31,<3', 'pypdf>=6,<7'])
+
+    def test_beginner_guides_packaged(self):
+        project = tomllib.loads((ROOT/'pyproject.toml').read_text())
+        docs = project['tool']['setuptools']['data-files']['share/doc/reprovane']
+        for name in ('QUICKSTART.md', 'USER_GUIDE.md', 'QUICKSTART_vi.md', 'USER_GUIDE_vi.md', 'MIGRATION_FROM_SCHOLARFLOW_1.md'):
+            self.assertIn(name, docs)
+            self.assertTrue((ROOT/name).is_file())
+
+    def test_semantics_exact_public_v1_wheel(self):
+        expected = json.loads((ROOT/'tests/fixtures/bootstrap/scholarflow_1_0_0_e2e.json').read_text(encoding='utf-8'))
+        self.assertEqual(reprovane_e2e(), expected)
+
+
+class TestPostRenameIdentity(unittest.TestCase):
+    @staticmethod
+    def identity_audit():
+        spec = importlib.util.spec_from_file_location('post_rename_audit', ROOT/'tools/audit_identity.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_runtime_uses_canonical_repository(self):
+        from reprovane.fulltext import USER_AGENT
+        self.assertIn('https://github.com/tvquynh/reprovane', USER_AGENT)
+        self.assertNotIn('https://github.com/tvquynh/scholarflow', USER_AGENT)
+
+    def test_main_source_and_unreleased_status(self):
+        text = (ROOT/'README.md').read_text(encoding='utf-8')
+        self.assertIn('https://github.com/tvquynh/reprovane', text)
+        self.assertIn('first public release of Reprovane', text)
+        self.assertIn('pip install "git+https://github.com/tvquynh/reprovane.git@main"', text)
+        self.assertNotIn('ScholarFlow', text)
+        for detail in ('schema', 'migration hashes', 'PEP517', 'not published', 'rename pending'):
+            self.assertNotIn(detail, text)
+        status = (ROOT/'OPERATIONS.md').read_text(encoding='utf-8')
+        self.assertIn('Reprovane 2.0.0 is published', status)
+        quick = (ROOT/'QUICKSTART.md').read_text(encoding='utf-8')
+        self.assertIn('https://www.python.org/downloads/', quick)
+        install = 'python.exe -m pip install "git+https://github.com/tvquynh/reprovane.git@main"'
+        self.assertIn(install, quick)
+        self.assertLess(quick.index(install), quick.index('### A3.'))
+        self.assertLess(quick.index('git --version'), quick.index(install))
+        self.assertIn('## B. macOS', quick)
+        self.assertIn('## C. Linux', quick)
+        for detail in ('nhánh đang chờ xét duyệt', 'Xin tệp wheel', 'schema 13', 'migration 0014'):
+            self.assertNotIn(detail, quick)
+        self.assertEqual(self.identity_audit().stale_current_status(), [])
+
+    def test_identity_audit_rejects_stale_runtime_url(self):
+        module = self.identity_audit()
+        self.assertEqual(module.classify('reprovane/fulltext.py', 'https://github.com/tvquynh/scholarflow'),
+                         'BUG/STALE_CURRENT_IDENTITY')
+
+    def test_remaining_reference_categories_are_explicit(self):
+        rows = self.identity_audit().audit()
+        categories = {r['category'] for r in rows}
+        self.assertEqual(categories, {'HISTORICAL_PROVENANCE', 'WORKSPACE_COMPATIBILITY',
+                                      'CURRENT_MIGRATION_DOC', 'TEST_ASSERTION'})
+
+
+if __name__ == '__main__':
+    unittest.main()

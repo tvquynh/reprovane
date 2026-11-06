@@ -1,0 +1,5 @@
+[
+  {"namespace":"openalex_work_id","value":"https://openalex.org/W1","source_note":"Synthetic protocol sentinel"},
+  {"namespace":"doi","value":"https://doi.org/10.1234/test2"},
+  {"namespace":"openalex_work_id","value":"https://openalex.org/W99"}
+]

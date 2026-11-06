@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "count": 10,
+    "next_cursor": "SYNTHETIC_NEXT_CURSOR"
+  },
+  "results": [
+    {
+      "id": "https://openalex.org/W1",
+      "title": "Synthetic Work 1",
+      "publication_year": 2024,
+      "publication_date": "2024-01-02",
+      "type": "article",
+      "doi": "https://doi.org/10.1234/test1",
+      "authorships": [
+        {
+          "author": {
+            "id": "https://openalex.org/A1",
+            "display_name": "First Synthetic",
+            "orcid": "https://orcid.org/0000-0002-1825-0097"
+          }
+        },
+        {
+          "author": {
+            "id": "https://openalex.org/A2",
+            "display_name": "Second Synthetic"
+          }
+        }
+      ],
+      "primary_location": {
+        "source": {
+          "id": "https://openalex.org/S1",
+          "display_name": "Synthetic Journal",
+          "type": "journal",
+          "issn_l": "1234-5679",
+          "issn": [
+            "1234-5679"
+          ],
+          "is_in_scopus": true,
+          "listed_in": [
+            "scopus",
+            "SCIE"
+          ]
+        }
+      },
+      "cited_by_count": 12,
+      "is_retracted": false,
+      "referenced_works": [
+        "https://openalex.org/W999"
+      ],
+      "open_access": {
+        "is_oa": true,
+        "oa_url": "https://example.invalid/article"
+      }
+    },
+    {
+      "id": "https://openalex.org/W2",
+      "title": "Synthetic Work 2",
+      "publication_year": 2024,
+      "publication_date": "2024-01-02",
+      "type": "article",
+      "doi": "https://doi.org/10.1234/test2",
+      "authorships": [
+        {
+          "author": {
+            "id": "https://openalex.org/A1",
+            "display_name": "First Synthetic",
+            "orcid": "https://orcid.org/0000-0002-1825-0097"
+          }
+        },
+        {
+          "author": {
+            "id": "https://openalex.org/A2",
+            "display_name": "Second Synthetic"
+          }
+        }
+      ],
+      "primary_location": {
+        "source": {
+          "id": "https://openalex.org/S1",
+          "display_name": "Synthetic Journal",
+          "type": "journal",
+          "issn_l": "1234-5679",
+          "issn": [
+            "1234-5679"
+          ],
+          "is_in_scopus": true,
+          "listed_in": [
+            "scopus",
+            "SCIE"
+          ]
+        }
+      },
+      "cited_by_count": 12,
+      "is_retracted": false,
+      "referenced_works": [
+        "https://openalex.org/W999"
+      ],
+      "open_access": {
+        "is_oa": true,
+        "oa_url": "https://example.invalid/article"
+      }
+    }
+  ]
+}

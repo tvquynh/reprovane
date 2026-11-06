@@ -1,0 +1,2 @@
+# PEP 517 frontend; backend requirements remain bounded in pyproject.toml.
+build>=1.2.2,<2
